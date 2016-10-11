@@ -1,0 +1,98 @@
+<Workspace Version="1.2.0.2690" X="394.391653044126" Y="171.107649764201" zoom="0.794352463051353" Name="GetSheetsFromSchedule" Description="Collects and returns all Revit sheet elements from a Sheet List Schedule&#xD;&#xA;&#xD;&#xA;Ensure the Sheet Number field is included in the Schedule" ID="de797f84-cad6-4afa-b853-dde372cac1da" Category="BimorphNodes.Revit.Sheets.Query">
+  <NamespaceResolutionMap />
+  <Elements>
+    <PythonNodeModels.PythonNode guid="4dc5581d-7f2d-45a7-9e92-d1e8254bcb0c" type="PythonNodeModels.PythonNode" nickname="Python Script" x="680.465916266087" y="298" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="1">
+      <PortInfo index="0" default="False" />
+      <Script>#Copyright 2016. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
+#Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes
+#GitHub: https://github.com/ThomasMahon/bimorphNodes/
+
+import clr
+
+# Import DocumentManager and TransactionManager
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+
+# Import RevitAPI
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+
+doc = DocumentManager.Instance.CurrentDBDocument
+
+sheetListName = IN[0]
+
+collector = FilteredElementCollector(doc)
+collector.OfClass( ViewSchedule );
+elementlist = collector.ToElements()
+
+sheetSchedule = None
+for i in elementlist:
+	scheduleViewName = BuiltInParameter.VIEW_NAME
+	viewName = i.get_Parameter(scheduleViewName).AsString()
+	
+	if viewName == sheetListName:
+		sheetSchedule = i
+		break
+		
+table = sheetSchedule.GetTableData()
+section = table.GetSectionData(SectionType.Body)
+nRows = section.NumberOfRows
+nColumns = section.NumberOfColumns
+
+columnIndex = None
+for c in range(nColumns): 
+	heading = TableView.GetCellText(sheetSchedule, SectionType.Body, 0, c)
+	if heading == "Sheet Number":
+		columnIndex = c
+		break
+
+sheetNumberList = []
+for row in range(nRows)[2:]: 
+	sheetNumberList.Add( TableView.GetCellText(sheetSchedule, SectionType.Body, row, columnIndex) )
+
+collector = FilteredElementCollector(doc)
+collector.OfClass( ViewSheet );
+elementlist = collector.ToElements()
+
+sheetList = []
+for s in elementlist: 
+	for n in sheetNumberList:
+		if s.SheetNumber == n: 
+			sheetList.Add(s)
+			break
+
+OUT = sheetList</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="0685a009-6f9d-4d19-addb-f9dd44fd9a6b" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="876.389664595186" y="298" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="revitSheets" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="95154d3b-4c60-426e-8180-755696eddc63" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="256.820265962662" y="303.657770458242" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Enter the name of the sheet list schedule&#xD;&#xA;sheetListScheduleName:string" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="4dc5581d-7f2d-45a7-9e92-d1e8254bcb0c" start_index="0" end="0685a009-6f9d-4d19-addb-f9dd44fd9a6b" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="95154d3b-4c60-426e-8180-755696eddc63" start_index="0" end="4dc5581d-7f2d-45a7-9e92-d1e8254bcb0c" end_index="0" portType="0" />
+  </Connectors>
+  <Notes>
+    <Dynamo.Graph.Notes.NoteModel guid="16ce4392-84cc-4bb7-a9b8-ba970083a4c6" text="AUTHOR&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Copyright 2016 Thomas Mahon&#xD;&#xA;@Thomas__Mahon" x="-102.947000959167" y="286.201670870829" />
+    <Dynamo.Graph.Notes.NoteModel guid="c3548a32-4ea2-4a29-8353-cd77d749a199" text="CONTACT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk&#xD;&#xA;&#xD;&#xA;info@bimorph.co.uk&#xD;&#xA;@bimorphBIM" x="-102.809225844099" y="396.175798313149" />
+    <Dynamo.Graph.Notes.NoteModel guid="d8278a3e-42b6-4efd-8cb8-59c5a6726ea7" text="PACKAGE NAME&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;bimorphNodes" x="-101.75596669307" y="201.885479979671" />
+    <Dynamo.Graph.Notes.NoteModel guid="c6784f51-c091-4227-b19a-1628c757d16c" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-100.987006042523" y="530.466116646628" />
+  </Notes>
+  <Annotations>
+    <Dynamo.Graph.Annotations.AnnotationModel guid="2c00aab0-beb0-4498-b8e5-df39aca6948f" annotationText="NODE DETAILS" left="-112.947000959167" top="148.552146646337" width="320.62666158331" height="469.247303333624" fontSize="36" InitialTop="201.885479979671" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
+      <Models ModelGuid="16ce4392-84cc-4bb7-a9b8-ba970083a4c6" />
+      <Models ModelGuid="c3548a32-4ea2-4a29-8353-cd77d749a199" />
+      <Models ModelGuid="d8278a3e-42b6-4efd-8cb8-59c5a6726ea7" />
+      <Models ModelGuid="c6784f51-c091-4227-b19a-1628c757d16c" />
+    </Dynamo.Graph.Annotations.AnnotationModel>
+  </Annotations>
+  <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-27630.287398795" eyeY="335155.609204877" eyeZ="180789.075184894" lookX="27630.287398795" lookY="-335155.609204877" lookZ="-180789.075184894" upX="0.114019568403998" upY="0.65605902899051" upZ="-0.746046974728135" />
+  </Cameras>
+</Workspace>

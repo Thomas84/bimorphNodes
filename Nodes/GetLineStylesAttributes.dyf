@@ -1,0 +1,92 @@
+<Workspace Version="1.2.0.2690" X="-115.720257219024" Y="-103.53765190165" zoom="0.917691001357603" Name="GetLineStylesAttributes" Description="Gets all the Revit Line Styles in the document and reports their Line Style Name, Weight and Colour as strings and integers" ID="f7639568-2e74-4d22-9e30-8126d916597b" Category="BimorphNodes.Revit.LineStyles.Query">
+  <NamespaceResolutionMap />
+  <Elements>
+    <Dynamo.Graph.Nodes.CodeBlockNodeModel guid="233e9595-22e9-4b4f-82be-f2e6f2eecf0a" type="Dynamo.Graph.Nodes.CodeBlockNodeModel" nickname="sortLineStyles" x="733.373686726643" y="351.288106250412" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" CodeText="//Copyright 2016. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk&#xA;//Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes&#xA;//GitHub: https://github.com/ThomasMahon/bimorphNodes/&#xA;&#xA;def sortLineStyles(lineStyleData:var[]..[])&#xA;{&#xA;	return = [Imperative]&#xA;	{&#xA;		lineStyleDataSorted = {};&#xA;		for (i in GetKeys(lineStyleData) )&#xA;		{&#xA;			lineStyleDataSorted[i] = List.SortByKey(lineStyleData[i], lineStyleData[0])[&quot;sorted list&quot;];&#xA;		}&#xA;		return = lineStyleDataSorted;&#xA;	}&#xA;};" ShouldFocus="false" />
+    <Dynamo.Graph.Nodes.CodeBlockNodeModel guid="18ac98d8-e547-4cc4-8186-db480ff22046" type="Dynamo.Graph.Nodes.CodeBlockNodeModel" nickname="Code Block" x="852.347543104338" y="777.079459876668" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" CodeText="sortLineStyles(lineStyleData);" ShouldFocus="false">
+      <PortInfo index="0" default="False" />
+    </Dynamo.Graph.Nodes.CodeBlockNodeModel>
+    <Dynamo.Graph.Nodes.CodeBlockNodeModel guid="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" type="Dynamo.Graph.Nodes.CodeBlockNodeModel" nickname="Code Block" x="853.176596740414" y="870.86028799252" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" CodeText="lineStyleNames = lineStyles[0];&#xA;lineStyleWeights = lineStyles[1];&#xA;lineStyleColour = lineStyles[2];" ShouldFocus="false">
+      <PortInfo index="0" default="False" />
+    </Dynamo.Graph.Nodes.CodeBlockNodeModel>
+    <PythonNodeModels.PythonNode guid="4417d511-fdaf-4b18-8cb0-55aa6352a904" type="PythonNodeModels.PythonNode" nickname="Python Script" x="735.278010842301" y="770.910460706688" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="0">
+      <Script>#Copyright 2016. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
+#Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk package: bimorphNodes
+#GitHub: https://github.com/ThomasMahon/bimorphNodes/
+
+import clr
+
+# Import DocumentManager and TransactionManager
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+
+# Import RevitAPI
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+
+doc = DocumentManager.Instance.CurrentDBDocument
+
+lineStyle = doc.Settings.Categories.get_Item(BuiltInCategory.OST_Lines)
+lineStyleSubTypes = lineStyle.SubCategories
+
+listNames = []
+listRGB = []
+lineWeight = []
+for i in lineStyleSubTypes:
+	rgb = [i.LineColor.Red, i.LineColor.Green, i.LineColor.Blue]
+	weight = i.GetLineWeight(GraphicsStyleType.Projection)
+	
+	listNames.append(i.Name)
+	listRGB.append(rgb)
+	lineWeight.append(weight)
+
+OUT = listNames, lineWeight, listRGB</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="e98dbfed-9fc4-4987-bfe5-6b47eb723a6d" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1328.39598065819" y="767.816396592518" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="lineStylesName" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="13f75866-f721-4f63-9003-aa08ad282a95" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1333.58725700073" y="829.462765047675" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="lineStylesWeight" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="6e708b29-986f-4bc6-b5bb-36d28ee0bbc2" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1334.37520107267" y="907.315611490514" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <PortInfo index="0" default="False" />
+      <Symbol value="lineStylesColour" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="18ac98d8-e547-4cc4-8186-db480ff22046" start_index="0" end="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" start_index="0" end="e98dbfed-9fc4-4987-bfe5-6b47eb723a6d" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" start_index="1" end="13f75866-f721-4f63-9003-aa08ad282a95" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" start_index="2" end="6e708b29-986f-4bc6-b5bb-36d28ee0bbc2" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="4417d511-fdaf-4b18-8cb0-55aa6352a904" start_index="0" end="18ac98d8-e547-4cc4-8186-db480ff22046" end_index="0" portType="0" />
+  </Connectors>
+  <Notes>
+    <Dynamo.Graph.Notes.NoteModel guid="9ad886f4-a17b-40d6-b45e-b227f8263ada" text="AUTHOR&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Copyright 2016 Thomas Mahon&#xD;&#xA;@Thomas__Mahon" x="311.71832928519" y="500.37116738392" />
+    <Dynamo.Graph.Notes.NoteModel guid="fca989fa-3f86-496f-9eac-1375de138507" text="CONTACT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk&#xD;&#xA;&#xD;&#xA;info@bimorph.co.uk&#xD;&#xA;@bimorphBIM" x="311.856104400258" y="610.34529482624" />
+    <Dynamo.Graph.Notes.NoteModel guid="14a4aa00-e27a-455c-abe5-68947735b522" text="PACKAGE NAME&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;bimorphNodes" x="312.909363551287" y="416.054976492762" />
+    <Dynamo.Graph.Notes.NoteModel guid="e64534e5-ea86-4673-89e0-8925943ddcff" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="313.678324201833" y="744.635613159719" />
+  </Notes>
+  <Annotations>
+    <Dynamo.Graph.Annotations.AnnotationModel guid="3eca4e06-0eea-4e06-97f3-a1783c00eab8" annotationText="Get the line styles and sort" left="725.278010842301" top="740.910460706688" width="507.231919231446" height="224.283160619165" fontSize="14" InitialTop="770.910460706688" InitialHeight="356.583532686125" TextblockHeight="20" backgrouund="#FFFF7BAC">
+      <Models ModelGuid="4417d511-fdaf-4b18-8cb0-55aa6352a904" />
+      <Models ModelGuid="18ac98d8-e547-4cc4-8186-db480ff22046" />
+      <Models ModelGuid="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" />
+    </Dynamo.Graph.Annotations.AnnotationModel>
+    <Dynamo.Graph.Annotations.AnnotationModel guid="2a48e43f-ff52-48d4-a8d1-f5dd62fce751" annotationText="Functions for sorting and structuring the Line Style data for exporting to Excel" left="723.373686726643" top="321.288106250412" width="699.333333333333" height="370.333333333333" fontSize="14" InitialTop="351.288106250412" InitialHeight="321.142796256047" TextblockHeight="20" backgrouund="#FF848484">
+      <Models ModelGuid="233e9595-22e9-4b4f-82be-f2e6f2eecf0a" />
+    </Dynamo.Graph.Annotations.AnnotationModel>
+    <Dynamo.Graph.Annotations.AnnotationModel guid="3d66622f-c53c-41dd-8e58-0bdb851acec3" annotationText="NODE DETAILS" left="301.71832928519" top="362.721643159429" width="320.62666158331" height="469.247303333624" fontSize="36" InitialTop="416.054976492762" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
+      <Models ModelGuid="9ad886f4-a17b-40d6-b45e-b227f8263ada" />
+      <Models ModelGuid="fca989fa-3f86-496f-9eac-1375de138507" />
+      <Models ModelGuid="14a4aa00-e27a-455c-abe5-68947735b522" />
+      <Models ModelGuid="e64534e5-ea86-4673-89e0-8925943ddcff" />
+    </Dynamo.Graph.Annotations.AnnotationModel>
+  </Annotations>
+  <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-27630.287398795" eyeY="335155.609204877" eyeZ="180789.075184894" lookX="27630.287398795" lookY="-335155.609204877" lookZ="-180789.075184894" upX="0.114019568403998" upY="0.65605902899051" upZ="-0.746046974728135" />
+  </Cameras>
+</Workspace>
