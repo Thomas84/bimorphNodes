@@ -1,4 +1,4 @@
-<Workspace Version="1.2.0.2690" X="422.87773801286" Y="199.061481280023" zoom="0.918117297227938" Name="CurvesFromCADLayers" Description="Extract curves from a CAD link or import by layer name. Curves are organised into layer sublists. To create Revit Model Lines set the revitModelLines input to true&#xD;&#xA;&#xD;&#xA;This node is also optimised to convert curve types that typically fail when using Revit.Elements.Element.Curves or Full Explode" ID="0eeb8f98-a56a-4c60-af50-994a0f209a37" Category="BimorphNodes.DWG  |  DGN.Create">
+<Workspace Version="1.2.0.2831" X="289.10905300734" Y="90.3513896362861" zoom="0.727895399766601" Name="CurvesFromCADLayers" Description="Extract curves from a CAD link or import by layer name. Curves are organised into layer sublists. To create Revit Model Lines set the createModelLines input to true&#xD;&#xA;&#xD;&#xA;This node is also optimised to convert curve types that typically fail when using Revit.Elements.Element.Curves or Full Explode" ID="0eeb8f98-a56a-4c60-af50-994a0f209a37" Category="BimorphNodes.DWG  |  DGN.Create">
   <NamespaceResolutionMap>
     <ClassMap partialName="ImportInstance" resolvedName="Revit.Elements.ImportInstance" assemblyName="RevitNodes.dll" />
     <ClassMap partialName="Curve" resolvedName="Autodesk.DesignScript.Geometry.Curve" assemblyName="ProtoGeometry.dll" />
@@ -155,7 +155,7 @@ OUT = modelLines, crvListDict.keys()</Script>
       <Symbol value="//Enter the layer names for conversion. Leave blank to convert all layers&#xD;&#xA;layerNames:string[]={}" />
     </Dynamo.Graph.Nodes.CustomNodes.Symbol>
     <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="e3ef7bbd-288c-4278-95ec-f9c2f3ee8a28" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="293.574594292442" y="367.187915156016" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
-      <Symbol value="//Set to True to convert into Revit Model Lines&#xD;&#xA;revitModelLines:bool=false" />
+      <Symbol value="//Set to True to convert into Revit Model Lines&#xD;&#xA;createModelLines:bool=false" />
     </Dynamo.Graph.Nodes.CustomNodes.Symbol>
     <Dynamo.Graph.Nodes.CustomNodes.Output guid="07b975b7-4f69-4510-be7e-d4144f3cf270" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1244.37765662966" y="293.390387952285" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
       <PortInfo index="0" default="False" />
@@ -184,7 +184,7 @@ OUT = modelLines, crvListDict.keys()</Script>
     <Dynamo.Graph.Notes.NoteModel guid="76020c5a-5171-4ba9-873b-58075a6228ed" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-286.509382799351" y="498.458202204731" />
   </Notes>
   <Annotations>
-    <Dynamo.Graph.Annotations.AnnotationModel guid="927adffe-c363-4b96-8d03-12f7cefcd3e7" annotationText="NODE DETAILS" left="-298.469377715995" top="116.54423220444" width="320.62666158331" height="469.247303333624" fontSize="36" InitialTop="169.877565537773" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
+    <Dynamo.Graph.Annotations.AnnotationModel guid="927adffe-c363-4b96-8d03-12f7cefcd3e7" annotationText="NODE DETAILS" left="-298.469377715995" top="116.54423220444" width="320.626661583311" height="469.247303333625" fontSize="36" InitialTop="169.877565537773" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
       <Models ModelGuid="508a5652-0911-4d93-9318-629281a31116" />
       <Models ModelGuid="ac93c018-a1be-4b54-9af9-35f3053e7a3b" />
       <Models ModelGuid="9d55b8cd-30b0-43ac-9ff8-2c3160e71bc1" />
@@ -192,7 +192,4 @@ OUT = modelLines, crvListDict.keys()</Script>
     </Dynamo.Graph.Annotations.AnnotationModel>
   </Annotations>
   <Presets />
-  <Cameras>
-    <Camera Name="Background Preview" eyeX="-27630.287398795" eyeY="335155.609204877" eyeZ="180789.075184894" lookX="27630.287398795" lookY="-335155.609204877" lookZ="-180789.075184894" upX="0.114019568403998" upY="0.65605902899051" upZ="-0.746046974728135" />
-  </Cameras>
 </Workspace>

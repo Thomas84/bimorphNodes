@@ -56,7 +56,4 @@ OUT  = nameList
     </Dynamo.Graph.Annotations.AnnotationModel>
   </Annotations>
   <Presets />
-  <Cameras>
-    <Camera Name="Background Preview" eyeX="-27630.287398795" eyeY="335155.609204877" eyeZ="180789.075184894" lookX="27630.287398795" lookY="-335155.609204877" lookZ="-180789.075184894" upX="0.114019568403998" upY="0.65605902899051" upZ="-0.746046974728135" />
-  </Cameras>
 </Workspace>
