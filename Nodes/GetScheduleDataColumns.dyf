@@ -1,9 +1,7 @@
-<Workspace Version="1.2.0.2690" X="436.928361550405" Y="144.466696486599" zoom="0.739296446812279" Name="GetScheduleDataColumns" Description="Get the specified column data from a given schedule as strings&#xD;&#xA;&#xD;&#xA;Column indexes start at 0" ID="09ae7b18-939b-486e-aba1-f14192e3754f" Category="BimorphNodes.Revit.Schedule.Query">
+<Workspace Version="1.0.0.1180" X="436.928361550405" Y="144.466696486599" zoom="0.739296446812279" Name="GetScheduleDataColumns" Description="Get the specified column data from a given schedule as strings&#xD;&#xA;&#xD;&#xA;Column indexes start at 0" ID="09ae7b18-939b-486e-aba1-f14192e3754f" Category="BimorphNodes.Revit.Schedule.Query">
   <NamespaceResolutionMap />
   <Elements>
     <PythonNodeModels.PythonNode guid="dac584a2-e66e-422f-aa91-4330ffeb766b" type="PythonNodeModels.PythonNode" nickname="Python Script" x="721.214866494053" y="204.809279367807" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="2">
-      <PortInfo index="0" default="False" />
-      <PortInfo index="1" default="False" />
       <Script>#Copyright 2016. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
 #Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes
 #GitHub: https://github.com/ThomasMahon/bimorphNodes/
@@ -59,7 +57,6 @@ for column in indexList:
 OUT = columnList</Script>
     </PythonNodeModels.PythonNode>
     <Dynamo.Graph.Nodes.CustomNodes.Output guid="4af5d6d7-5470-4f50-9a6d-fbf61c614b52" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="886.177461441594" y="204.885893290046" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
-      <PortInfo index="0" default="False" />
       <Symbol value="scheduleColumnData" />
     </Dynamo.Graph.Nodes.CustomNodes.Output>
     <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="66ed091e-d10e-4bc9-a30d-afaf5985677c" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="337.435906897452" y="176.266198202725" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
@@ -81,7 +78,7 @@ OUT = columnList</Script>
     <Dynamo.Graph.Notes.NoteModel guid="f30e546c-5a7c-459d-976b-68125b03c153" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-322.632682117298" y="466.080320572583" />
   </Notes>
   <Annotations>
-    <Dynamo.Graph.Annotations.AnnotationModel guid="8b65282c-f81b-40da-b2e7-f9c2e2c87784" annotationText="NODE DETAILS" left="-334.592677033942" top="84.1663505722921" width="320.62666158331" height="469.247303333624" fontSize="36" InitialTop="137.499683905625" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
+    <Dynamo.Graph.Annotations.AnnotationModel guid="8b65282c-f81b-40da-b2e7-f9c2e2c87784" annotationText="NODE DETAILS" left="-334.592677033942" top="84.1663505722917" width="320.626661583311" height="469.247303333625" fontSize="36" InitialTop="137.499683905625" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
       <Models ModelGuid="c6251cab-7027-47f7-a4ae-6783a523ff15" />
       <Models ModelGuid="955a90ae-8329-402e-ba84-68744b4c50d3" />
       <Models ModelGuid="ce3548a1-6cec-4136-ac99-06dbebe424b8" />
@@ -89,4 +86,7 @@ OUT = columnList</Script>
     </Dynamo.Graph.Annotations.AnnotationModel>
   </Annotations>
   <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
 </Workspace>

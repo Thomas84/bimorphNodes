@@ -1,9 +1,7 @@
-<Workspace Version="1.2.0.2690" X="235.229912263896" Y="63.8038428793431" zoom="0.789531730130976" Name="GetScheduleData" Description="Gets all the table data from a given schedule as strings" ID="e3e24f0b-0004-41f0-8d4b-f8b3db181bd9" Category="BimorphNodes.Revit.Schedule.Query">
+<Workspace Version="1.0.0.1180" X="235.229912263896" Y="63.8038428793431" zoom="0.789531730130976" Name="GetScheduleData" Description="Gets all the table data from a given schedule as strings" ID="e3e24f0b-0004-41f0-8d4b-f8b3db181bd9" Category="BimorphNodes.Revit.Schedule.Query">
   <NamespaceResolutionMap />
   <Elements>
     <PythonNodeModels.PythonNode guid="92c8832c-71bb-4e9b-bdc4-495dc418f022" type="PythonNodeModels.PythonNode" nickname="Python Script" x="783.047332064271" y="277.833782354907" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="2">
-      <PortInfo index="0" default="False" />
-      <PortInfo index="1" default="False" />
       <Script>#Copyright 2016. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
 #Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes
 #GitHub: https://github.com/ThomasMahon/bimorphNodes/
@@ -55,7 +53,6 @@ else:
 	OUT = dataListRow</Script>
     </PythonNodeModels.PythonNode>
     <Dynamo.Graph.Nodes.CustomNodes.Output guid="1dc4c1a6-f3e2-4f58-a85d-7f408184998a" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1016.08174168101" y="292.655138734439" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
-      <PortInfo index="0" default="False" />
       <Symbol value="scheduleData" />
     </Dynamo.Graph.Nodes.CustomNodes.Output>
     <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="bef7eb39-a7eb-4d6c-9eb3-8e3223cd9f5d" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="257.426750573683" y="255.54438990878" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
@@ -77,7 +74,7 @@ else:
     <Dynamo.Graph.Notes.NoteModel guid="db392268-418f-4127-92f0-374222c5327c" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-280.025934474354" y="575.983419540616" />
   </Notes>
   <Annotations>
-    <Dynamo.Graph.Annotations.AnnotationModel guid="1799ae1d-a6c0-469d-8327-b151cab523b2" annotationText="NODE DETAILS" left="-291.985929390998" top="194.069449540325" width="320.62666158331" height="469.247303333624" fontSize="36" InitialTop="247.402782873658" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
+    <Dynamo.Graph.Annotations.AnnotationModel guid="1799ae1d-a6c0-469d-8327-b151cab523b2" annotationText="NODE DETAILS" left="-291.985929390998" top="194.069449540325" width="320.626661583311" height="469.247303333625" fontSize="36" InitialTop="247.402782873658" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
       <Models ModelGuid="9ff48b43-44c1-48fd-9a29-6acc9fbcf5f0" />
       <Models ModelGuid="9d63bf16-3540-4113-b6a2-3753dbb5df7e" />
       <Models ModelGuid="1031189a-d8f8-46fd-981e-5f9807672536" />
@@ -85,4 +82,7 @@ else:
     </Dynamo.Graph.Annotations.AnnotationModel>
   </Annotations>
   <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
 </Workspace>

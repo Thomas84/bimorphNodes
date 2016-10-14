@@ -1,13 +1,10 @@
-<Workspace Version="1.2.0.2831" X="289.10905300734" Y="90.3513896362861" zoom="0.727895399766601" Name="CurvesFromCADLayers" Description="Extract curves from a CAD link or import by layer name. Curves are organised into layer sublists. To create Revit Model Lines set the createModelLines input to true&#xD;&#xA;&#xD;&#xA;This node is also optimised to convert curve types that typically fail when using Revit.Elements.Element.Curves or Full Explode" ID="0eeb8f98-a56a-4c60-af50-994a0f209a37" Category="BimorphNodes.DWG  |  DGN.Create">
+<Workspace Version="1.0.0.1180" X="-536.309482520304" Y="-115.709993344784" zoom="0.962904283954352" Name="CurvesFromCADLayers" Description="Extract curves from a CAD link or import by layer name. Curves are organised into layer sublists. To create Revit Model Lines set the createModelLines input to true&#xD;&#xA;&#xD;&#xA;This node is also optimised to convert curve types that typically fail when using Revit.Elements.Element.Curves or Full Explode" ID="0eeb8f98-a56a-4c60-af50-994a0f209a37" Category="BimorphNodes.DWG  |  DGN.Create">
   <NamespaceResolutionMap>
     <ClassMap partialName="ImportInstance" resolvedName="Revit.Elements.ImportInstance" assemblyName="RevitNodes.dll" />
     <ClassMap partialName="Curve" resolvedName="Autodesk.DesignScript.Geometry.Curve" assemblyName="ProtoGeometry.dll" />
   </NamespaceResolutionMap>
   <Elements>
     <PythonNodeModels.PythonNode guid="3d8c1b43-da91-46ba-9bdb-facf239939b6" type="PythonNodeModels.PythonNode" nickname="Python Script" x="822.989615682354" y="269.724529066327" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="true" inputcount="3">
-      <PortInfo index="0" default="False" />
-      <PortInfo index="1" default="False" />
-      <PortInfo index="2" default="False" />
       <Script>#Copyright 2016. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
 #Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk package: bimorphNodes
 #GitHub: https://github.com/ThomasMahon/bimorphNodes/
@@ -62,7 +59,7 @@ def storageDictionary(crvListDict, eleGraphicStyleName, e):
 		
 	
 def curveConversion (crv, revitModelLines, crvObject, refPlane):
-	if revitModelLines:
+	if revitModelLines == True:
 		crv.Add( doc.Create.NewModelCurve( crvObject, refPlane) )
 	else:
 		crv.Add( crvObject.ToProtoType() )
@@ -145,7 +142,6 @@ TransactionManager.Instance.TransactionTaskDone()
 OUT = modelLines, crvListDict.keys()</Script>
     </PythonNodeModels.PythonNode>
     <Dynamo.Graph.Nodes.CustomNodes.Output guid="55b364a9-7839-4d2a-ab0b-2f5d1a7b7314" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1256.84713666969" y="214.86322678884" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
-      <PortInfo index="0" default="False" />
       <Symbol value="curves" />
     </Dynamo.Graph.Nodes.CustomNodes.Output>
     <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="3086e413-39fe-4072-9f07-f475b42bc8f3" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="238.604973578196" y="143.95762615792" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
@@ -158,15 +154,10 @@ OUT = modelLines, crvListDict.keys()</Script>
       <Symbol value="//Set to True to convert into Revit Model Lines&#xD;&#xA;createModelLines:bool=false" />
     </Dynamo.Graph.Nodes.CustomNodes.Symbol>
     <Dynamo.Graph.Nodes.CustomNodes.Output guid="07b975b7-4f69-4510-be7e-d4144f3cf270" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1244.37765662966" y="293.390387952285" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
-      <PortInfo index="0" default="False" />
       <Symbol value="layerKeys" />
     </Dynamo.Graph.Nodes.CustomNodes.Output>
-    <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="ab0580d9-eaa4-4ed4-b8c1-65b9f506126a" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.FirstItem" x="1034.86671990001" y="206.223648300178" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.FirstItem@var[]..[]">
-      <PortInfo index="0" default="False" />
-    </Dynamo.Graph.Nodes.ZeroTouch.DSFunction>
-    <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="97b1ece9-7fc2-4563-ae17-670d8d56654d" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.LastItem" x="1010.49482024451" y="337.688187822384" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.LastItem@var[]..[]">
-      <PortInfo index="0" default="False" />
-    </Dynamo.Graph.Nodes.ZeroTouch.DSFunction>
+    <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="ab0580d9-eaa4-4ed4-b8c1-65b9f506126a" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.FirstItem" x="1034.86671990001" y="206.223648300178" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.FirstItem@var[]..[]" />
+    <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="97b1ece9-7fc2-4563-ae17-670d8d56654d" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.LastItem" x="1010.49482024451" y="337.688187822384" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.LastItem@var[]..[]" />
   </Elements>
   <Connectors>
     <Dynamo.Graph.Connectors.ConnectorModel start="3d8c1b43-da91-46ba-9bdb-facf239939b6" start_index="0" end="ab0580d9-eaa4-4ed4-b8c1-65b9f506126a" end_index="0" portType="0" />
@@ -192,4 +183,7 @@ OUT = modelLines, crvListDict.keys()</Script>
     </Dynamo.Graph.Annotations.AnnotationModel>
   </Annotations>
   <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
 </Workspace>

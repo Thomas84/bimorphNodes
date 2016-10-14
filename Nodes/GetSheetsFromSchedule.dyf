@@ -1,8 +1,7 @@
-<Workspace Version="1.2.0.2831" X="-461.328605851915" Y="-123.424228474676" zoom="1.6475260968303" Name="GetSheetsFromSchedule" Description="Collects and returns all Revit sheets from a Sheet List Schedule&#xD;&#xA;&#xD;&#xA;Ensure the Sheet Number field is included in the Schedule" ID="de797f84-cad6-4afa-b853-dde372cac1da" Category="BimorphNodes.Revit.Sheets.Query">
+<Workspace Version="1.0.0.1180" X="-461.328605851915" Y="-123.424228474676" zoom="1.6475260968303" Name="GetSheetsFromSchedule" Description="Collects and returns all Revit sheets from a Sheet List Schedule&#xD;&#xA;&#xD;&#xA;Ensure the Sheet Number field is included in the Schedule" ID="de797f84-cad6-4afa-b853-dde372cac1da" Category="BimorphNodes.Revit.Sheets.Query">
   <NamespaceResolutionMap />
   <Elements>
     <PythonNodeModels.PythonNode guid="4dc5581d-7f2d-45a7-9e92-d1e8254bcb0c" type="PythonNodeModels.PythonNode" nickname="Python Script" x="680.465916266087" y="298" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="1">
-      <PortInfo index="0" default="False" />
       <Script>#Copyright 2016. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
 #Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes
 #GitHub: https://github.com/ThomasMahon/bimorphNodes/
@@ -66,7 +65,6 @@ for s in elementlist:
 OUT = sheetList</Script>
     </PythonNodeModels.PythonNode>
     <Dynamo.Graph.Nodes.CustomNodes.Output guid="0685a009-6f9d-4d19-addb-f9dd44fd9a6b" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="876.389664595186" y="298" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
-      <PortInfo index="0" default="False" />
       <Symbol value="sheets" />
     </Dynamo.Graph.Nodes.CustomNodes.Output>
     <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="95154d3b-4c60-426e-8180-755696eddc63" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="256.820265962662" y="303.657770458242" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">

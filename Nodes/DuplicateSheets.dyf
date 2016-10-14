@@ -1,15 +1,10 @@
-<Workspace Version="1.2.0.2690" X="732.591237602616" Y="321.069200043639" zoom="1.02469246640971" Name="DuplicateSheets" Description="Duplicate selected sheets and any placed views with options to control if views are duplicated and the method of duplication&#xD;&#xA;&#xD;&#xA;ViewSchedules and Legends are currently not supported" ID="e3122676-1462-4548-a45e-e3584ece95a1" Category="BimorphNodes.Revit.Sheets.Create">
+<Workspace Version="1.0.0.1180" X="732.591237602616" Y="321.069200043639" zoom="1.02469246640971" Name="DuplicateSheets" Description="Duplicate selected sheets and any placed views with options to control if views are duplicated and the method of duplication&#xD;&#xA;&#xD;&#xA;ViewSchedules and Legends are currently not supported" ID="e3122676-1462-4548-a45e-e3584ece95a1" Category="BimorphNodes.Revit.Sheets.Create">
   <NamespaceResolutionMap>
     <ClassMap partialName="List" resolvedName="DSCore.List" assemblyName="DSCoreNodes.dll" />
     <ClassMap partialName="Sheet" resolvedName="Revit.Elements.Views.Sheet" assemblyName="RevitNodes.dll" />
   </NamespaceResolutionMap>
   <Elements>
     <PythonNodeModels.PythonNode guid="2f9ab7d9-1386-45fe-8665-fabf0ec0f9c7" type="PythonNodeModels.PythonNode" nickname="Python Script" x="541.491276377976" y="102.430358874583" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="5">
-      <PortInfo index="0" default="False" />
-      <PortInfo index="1" default="False" />
-      <PortInfo index="2" default="False" />
-      <PortInfo index="3" default="False" />
-      <PortInfo index="4" default="False" />
       <Script>#Copyright 2016. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
 #Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes
 #GitHub: https://github.com/ThomasMahon/bimorphNodes/
@@ -123,7 +118,6 @@ if run:
       <Symbol value="//Enter the Revit sheets to duplicate&#xD;&#xA;sheets:Sheet[]" />
     </Dynamo.Graph.Nodes.CustomNodes.Symbol>
     <Dynamo.Graph.Nodes.CustomNodes.Output guid="1c4183cd-4e9e-4524-bf7d-de344d17e26a" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="722.583847757261" y="103.571370042073" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
-      <PortInfo index="0" default="False" />
       <Symbol value="Report" />
     </Dynamo.Graph.Nodes.CustomNodes.Output>
     <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="d1b571ee-2966-422d-a4ff-65e4cce079ee" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="27.0283436789421" y="18.0580368117111" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
@@ -163,6 +157,6 @@ if run:
   </Annotations>
   <Presets />
   <Cameras>
-    <Camera Name="Background Preview" eyeX="-27630.287398795" eyeY="335155.609204877" eyeZ="180789.075184894" lookX="27630.287398795" lookY="-335155.609204877" lookZ="-180789.075184894" upX="0.114019568403998" upY="0.65605902899051" upZ="-0.746046974728135" />
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
   </Cameras>
 </Workspace>
