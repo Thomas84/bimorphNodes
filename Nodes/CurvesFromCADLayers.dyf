@@ -1,4 +1,4 @@
-<Workspace Version="1.0.0.1180" X="-536.309482520304" Y="-115.709993344784" zoom="0.962904283954352" Name="CurvesFromCADLayers" Description="Extract curves from a CAD link or import by layer name. Curves are organised into layer sublists. To create Revit Model Lines set the createModelLines input to true&#xD;&#xA;&#xD;&#xA;This node is also optimised to convert curve types that typically fail when using Revit.Elements.Element.Curves or Full Explode" ID="0eeb8f98-a56a-4c60-af50-994a0f209a37" Category="BimorphNodes.DWG  |  DGN.Create">
+<Workspace Version="1.0.0.1180" X="-678.633709260607" Y="25.0120455714102" zoom="1.41484961908231" Name="CurvesFromCADLayers" Description="Extract curves from a CAD link or import by layer name. Curves are organised into layer sublists. To create Revit Model Lines set the createModelLines input to true&#xD;&#xA;&#xD;&#xA;This node is also optimised to convert curve types that typically fail when using Revit.Elements.Element.Curves or Full Explode" ID="0eeb8f98-a56a-4c60-af50-994a0f209a37" Category="BimorphNodes.DWG  |  DGN.Create">
   <NamespaceResolutionMap>
     <ClassMap partialName="ImportInstance" resolvedName="Revit.Elements.ImportInstance" assemblyName="RevitNodes.dll" />
     <ClassMap partialName="Curve" resolvedName="Autodesk.DesignScript.Geometry.Curve" assemblyName="ProtoGeometry.dll" />
@@ -66,7 +66,7 @@ def curveConversion (crv, revitModelLines, crvObject, refPlane):
 	
 TransactionManager.Instance.EnsureInTransaction(doc)
 
-geomEnum = importDWG.get_Geometry(Options()).GetEnumerator()
+geomEnum = importDWG.Geometry[ Options() ].GetEnumerator()
 
 crvListDict = dict()
 failedFilter = []
@@ -144,7 +144,7 @@ OUT = modelLines, crvListDict.keys()</Script>
     <Dynamo.Graph.Nodes.CustomNodes.Output guid="55b364a9-7839-4d2a-ab0b-2f5d1a7b7314" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1256.84713666969" y="214.86322678884" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
       <Symbol value="curves" />
     </Dynamo.Graph.Nodes.CustomNodes.Output>
-    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="3086e413-39fe-4072-9f07-f475b42bc8f3" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="238.604973578196" y="143.95762615792" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="3086e413-39fe-4072-9f07-f475b42bc8f3" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="316.700806790444" y="171.764475862281" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
       <Symbol value="//Input the ImportInstance to convert to curves&#xD;&#xA;importInstance" />
     </Dynamo.Graph.Nodes.CustomNodes.Symbol>
     <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="309b3676-762e-475e-9f63-5894213f4263" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="97.0662222728431" y="262.45081223975" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
@@ -156,7 +156,7 @@ OUT = modelLines, crvListDict.keys()</Script>
     <Dynamo.Graph.Nodes.CustomNodes.Output guid="07b975b7-4f69-4510-be7e-d4144f3cf270" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1244.37765662966" y="293.390387952285" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
       <Symbol value="layerKeys" />
     </Dynamo.Graph.Nodes.CustomNodes.Output>
-    <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="ab0580d9-eaa4-4ed4-b8c1-65b9f506126a" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.FirstItem" x="1034.86671990001" y="206.223648300178" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.FirstItem@var[]..[]" />
+    <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="ab0580d9-eaa4-4ed4-b8c1-65b9f506126a" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.FirstItem" x="1020.02415308812" y="214.705115049827" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.FirstItem@var[]..[]" />
     <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="97b1ece9-7fc2-4563-ae17-670d8d56654d" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.LastItem" x="1010.49482024451" y="337.688187822384" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.LastItem@var[]..[]" />
   </Elements>
   <Connectors>
@@ -175,7 +175,7 @@ OUT = modelLines, crvListDict.keys()</Script>
     <Dynamo.Graph.Notes.NoteModel guid="76020c5a-5171-4ba9-873b-58075a6228ed" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-286.509382799351" y="498.458202204731" />
   </Notes>
   <Annotations>
-    <Dynamo.Graph.Annotations.AnnotationModel guid="927adffe-c363-4b96-8d03-12f7cefcd3e7" annotationText="NODE DETAILS" left="-298.469377715995" top="116.54423220444" width="320.626661583311" height="469.247303333625" fontSize="36" InitialTop="169.877565537773" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
+    <Dynamo.Graph.Annotations.AnnotationModel guid="927adffe-c363-4b96-8d03-12f7cefcd3e7" annotationText="NODE DETAILS" left="-298.469377715995" top="116.877565537773" width="320.959994916644" height="469.580636666958" fontSize="36" InitialTop="169.877565537773" InitialHeight="468.580636666957" TextblockHeight="43" backgrouund="#FFD8D8D8">
       <Models ModelGuid="508a5652-0911-4d93-9318-629281a31116" />
       <Models ModelGuid="ac93c018-a1be-4b54-9af9-35f3053e7a3b" />
       <Models ModelGuid="9d55b8cd-30b0-43ac-9ff8-2c3160e71bc1" />

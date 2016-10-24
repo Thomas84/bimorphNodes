@@ -1,4 +1,4 @@
-<Workspace Version="1.0.0.1180" X="784.602720528008" Y="303.585289644632" zoom="0.960233205802177" Name="CADLayersInUse" Description="Get the list of layer names from a CAD link or import that are in use and contain curves" ID="3782f978-48c2-4a36-bb8f-abe01599c833" Category="BimorphNodes.DWG  |  DGN.Query">
+<Workspace Version="1.0.0.1180" X="743.324394768827" Y="301.624831374791" zoom="1.111867603658" Name="CADLayersInUse" Description="Get the list of layer names from a CAD link or import that are in use and contain curves" ID="3782f978-48c2-4a36-bb8f-abe01599c833" Category="BimorphNodes.DWG  |  DGN.Query">
   <NamespaceResolutionMap />
   <Elements>
     <PythonNodeModels.PythonNode guid="6cf618ed-b93d-484e-a8e0-8a499ad32a12" type="PythonNodeModels.PythonNode" nickname="Python Script" x="204.537488490536" y="-45.4625115094643" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="1">
@@ -22,7 +22,7 @@ doc = DocumentManager.Instance.CurrentDBDocument
 
 importDWG = UnwrapElement(IN[0])
 
-geomEnum = importDWG.get_Geometry(Options()).GetEnumerator()
+geomEnum = importDWG.Geometry[ Options() ].GetEnumerator()
 
 failedFilter = []
 layerList = []
@@ -78,7 +78,7 @@ OUT = set(layerList)</Script>
     <Dynamo.Graph.Notes.NoteModel guid="6cbdad4b-6331-462c-b4dd-71b9b52eb420" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-723.21288901815" y="296.428672267619" />
   </Notes>
   <Annotations>
-    <Dynamo.Graph.Annotations.AnnotationModel guid="34dd6f5e-3526-42be-a1f5-cd11cf92aac2" annotationText="NODE DETAILS" left="-735.172883934794" top="-85.4852977326718" width="320.626661583311" height="469.247303333624" fontSize="36" InitialTop="-32.1519643993385" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
+    <Dynamo.Graph.Annotations.AnnotationModel guid="34dd6f5e-3526-42be-a1f5-cd11cf92aac2" annotationText="NODE DETAILS" left="-735.172883934794" top="-85.1519643993385" width="320.959994916644" height="469.580636666958" fontSize="36" InitialTop="-32.1519643993385" InitialHeight="468.580636666957" TextblockHeight="43" backgrouund="#FFD8D8D8">
       <Models ModelGuid="52cf7764-f423-4fe0-be21-9a4e1730442c" />
       <Models ModelGuid="b5e275f5-8b57-4208-a65f-c906d3617be8" />
       <Models ModelGuid="25511abb-a102-4aed-b981-c8546b98e356" />

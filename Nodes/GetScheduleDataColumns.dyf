@@ -1,4 +1,4 @@
-<Workspace Version="1.0.0.1180" X="436.928361550405" Y="144.466696486599" zoom="0.739296446812279" Name="GetScheduleDataColumns" Description="Get the specified column data from a given schedule as strings&#xD;&#xA;&#xD;&#xA;Column indexes start at 0" ID="09ae7b18-939b-486e-aba1-f14192e3754f" Category="BimorphNodes.Revit.Schedule.Query">
+<Workspace Version="1.0.0.1180" X="-654.038935938759" Y="-15.8232516973921" zoom="1.22816783419511" Name="GetScheduleDataColumns" Description="Get the specified column data from a given schedule as strings&#xD;&#xA;&#xD;&#xA;Column indexes start at 0" ID="09ae7b18-939b-486e-aba1-f14192e3754f" Category="BimorphNodes.Revit.Schedule.Query">
   <NamespaceResolutionMap />
   <Elements>
     <PythonNodeModels.PythonNode guid="dac584a2-e66e-422f-aa91-4330ffeb766b" type="PythonNodeModels.PythonNode" nickname="Python Script" x="721.214866494053" y="204.809279367807" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="2">
@@ -20,7 +20,7 @@ from Autodesk.Revit.DB import *
 
 doc = DocumentManager.Instance.CurrentDBDocument
 
-sheetListName = IN[0]
+scheduleName = IN[0]
 columnIndexes = IN[1]
 
 if isinstance(columnIndexes, list):
@@ -32,14 +32,17 @@ collector = FilteredElementCollector(doc)
 collector.OfClass( ViewSchedule );
 elementlist = collector.ToElements()
 
-schedule = None
-for i in elementlist:
-	scheduleViewName = BuiltInParameter.VIEW_NAME
-	viewName = i.get_Parameter(scheduleViewName).AsString()
-	
-	if viewName == sheetListName:
-		schedule = i
-		break
+if isinstance(scheduleName, str):
+	schedule = None
+	for i in elementlist:
+		scheduleViewName = BuiltInParameter.VIEW_NAME
+		viewName = i.get_Parameter( scheduleViewName ).AsString()
+		
+		if viewName == scheduleName:
+			schedule = i
+			break		
+else:
+	schedule = UnwrapElement(scheduleName)
 
 table = schedule.GetTableData()
 section = table.GetSectionData(SectionType.Body)
@@ -57,12 +60,12 @@ for column in indexList:
 OUT = columnList</Script>
     </PythonNodeModels.PythonNode>
     <Dynamo.Graph.Nodes.CustomNodes.Output guid="4af5d6d7-5470-4f50-9a6d-fbf61c614b52" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="886.177461441594" y="204.885893290046" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
-      <Symbol value="scheduleColumnData" />
+      <Symbol value="scheduleDataColumn" />
     </Dynamo.Graph.Nodes.CustomNodes.Output>
-    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="66ed091e-d10e-4bc9-a30d-afaf5985677c" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="337.435906897452" y="176.266198202725" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
-      <Symbol value="//Enter the name of the schedule&#xD;&#xA;scheduleName:string" />
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="66ed091e-d10e-4bc9-a30d-afaf5985677c" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="111.146688484502" y="166.611191550439" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Enter the Revit schedule view or the schedule name as a string&#xD;&#xA;scheduleViewOrName:var" />
     </Dynamo.Graph.Nodes.CustomNodes.Symbol>
-    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="397967ce-ecf0-4cdd-8768-b0262945a2d9" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="65.4886047772302" y="252.697486262191" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="397967ce-ecf0-4cdd-8768-b0262945a2d9" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="20.834199010408" y="255.111237925262" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
       <Symbol value="//Enter the index or indexes of the required columns. Indexes start from 0&#xD;&#xA;columnIndexes:int[]..[]" />
     </Dynamo.Graph.Nodes.CustomNodes.Symbol>
   </Elements>
@@ -78,7 +81,7 @@ OUT = columnList</Script>
     <Dynamo.Graph.Notes.NoteModel guid="f30e546c-5a7c-459d-976b-68125b03c153" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-322.632682117298" y="466.080320572583" />
   </Notes>
   <Annotations>
-    <Dynamo.Graph.Annotations.AnnotationModel guid="8b65282c-f81b-40da-b2e7-f9c2e2c87784" annotationText="NODE DETAILS" left="-334.592677033942" top="84.1663505722917" width="320.626661583311" height="469.247303333625" fontSize="36" InitialTop="137.499683905625" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
+    <Dynamo.Graph.Annotations.AnnotationModel guid="8b65282c-f81b-40da-b2e7-f9c2e2c87784" annotationText="NODE DETAILS" left="-334.592677033942" top="84.499683905625" width="320.959994916644" height="469.580636666958" fontSize="36" InitialTop="137.499683905625" InitialHeight="468.580636666957" TextblockHeight="43" backgrouund="#FFD8D8D8">
       <Models ModelGuid="c6251cab-7027-47f7-a4ae-6783a523ff15" />
       <Models ModelGuid="955a90ae-8329-402e-ba84-68744b4c50d3" />
       <Models ModelGuid="ce3548a1-6cec-4136-ac99-06dbebe424b8" />
@@ -87,6 +90,6 @@ OUT = columnList</Script>
   </Annotations>
   <Presets />
   <Cameras>
-    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+    <Camera Name="Background Preview" eyeX="77252.1676219424" eyeY="81828.3515621919" eyeZ="62977.5425910695" lookX="-77257.1676219424" lookY="-81817.3515621919" lookZ="-62985.5425910695" upX="-0.35187066844589" upY="0.891006524188369" upZ="-0.286870016804138" />
   </Cameras>
 </Workspace>

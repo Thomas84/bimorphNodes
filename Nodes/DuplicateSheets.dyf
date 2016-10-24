@@ -1,4 +1,4 @@
-<Workspace Version="1.0.0.1180" X="732.591237602616" Y="321.069200043639" zoom="1.02469246640971" Name="DuplicateSheets" Description="Duplicate selected sheets and any placed views with options to control if views are duplicated and the method of duplication&#xD;&#xA;&#xD;&#xA;ViewSchedules and Legends are currently not supported" ID="e3122676-1462-4548-a45e-e3584ece95a1" Category="BimorphNodes.Revit.Sheets.Create">
+<Workspace Version="1.0.0.1180" X="138.383918938941" Y="151.025060213389" zoom="0.598062787565864" Name="DuplicateSheets" Description="Duplicate selected sheets and any placed views with options to control if views are duplicated and the method of duplication&#xD;&#xA;&#xD;&#xA;ViewSchedules and Legends are currently not supported" ID="e3122676-1462-4548-a45e-e3584ece95a1" Category="BimorphNodes.Revit.Sheets.Create">
   <NamespaceResolutionMap>
     <ClassMap partialName="List" resolvedName="DSCore.List" assemblyName="DSCoreNodes.dll" />
     <ClassMap partialName="Sheet" resolvedName="Revit.Elements.Views.Sheet" assemblyName="RevitNodes.dll" />
@@ -71,7 +71,7 @@ if run:
 		titleBlockSymbol = titleBlock[0].Symbol
 		
 		currentSheetNumber = i.SheetNumber
-		currentSheetName = unwrapSheet.get_Parameter(BuiltInParameter.SHEET_NAME).AsString()
+		currentSheetName = unwrapSheet.get_Parameter( BuiltInParameter.SHEET_NAME ).AsString()
 			
 		newSheetNumberString = currentSheetNumber + affix
 		if newSheetNumberString in allSheetNumbers:
@@ -80,11 +80,11 @@ if run:
 			newSheet = ViewSheet.Create(doc, ElementId(titleBlockSymbol.ToDSType(True).Id) )
 			sheetSuccessfullyDuplicated = True
 			
-			sheetNumberParam = newSheet.get_Parameter(BuiltInParameter.SHEET_NUMBER)
+			sheetNumberParam = newSheet.get_Parameter( BuiltInParameter.SHEET_NUMBER )
 			sheetNumberParam.Set( newSheetNumberString )
 			allSheetNumbers.Add( newSheetNumberString )
 		
-			sheetName = newSheet.get_Parameter(BuiltInParameter.SHEET_NAME)
+			sheetName = newSheet.get_Parameter( BuiltInParameter.SHEET_NAME )
 			sheetName.Set(currentSheetName)
 		
 			doc.Regenerate()
@@ -102,7 +102,7 @@ if run:
 						report.Add("View " + newViewName + " exists in the document and cannot be duplicated" )
 					else:
 						newView = getView.Duplicate(duplicateOption)
-						newViewNameParam = doc.GetElement(newView).get_Parameter(BuiltInParameter.VIEW_NAME)
+						newViewNameParam = doc.GetElement(newView).get_Parameter( BuiltInParameter.VIEW_NAME )
 						newViewNameParam.Set(newViewName)
 						
 						addView = Viewport.Create(doc, ElementId(newSheet.ToDSType(True).Id), newView, ptXYZ)
@@ -118,7 +118,7 @@ if run:
       <Symbol value="//Enter the Revit sheets to duplicate&#xD;&#xA;sheets:Sheet[]" />
     </Dynamo.Graph.Nodes.CustomNodes.Symbol>
     <Dynamo.Graph.Nodes.CustomNodes.Output guid="1c4183cd-4e9e-4524-bf7d-de344d17e26a" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="722.583847757261" y="103.571370042073" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
-      <Symbol value="Report" />
+      <Symbol value="report" />
     </Dynamo.Graph.Nodes.CustomNodes.Output>
     <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="d1b571ee-2966-422d-a4ff-65e4cce079ee" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="27.0283436789421" y="18.0580368117111" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
       <Symbol value="//Set to True to dupicate the input sheets&#xD;&#xA;run:bool" />
@@ -148,7 +148,7 @@ if run:
     <Dynamo.Graph.Notes.NoteModel guid="c0cb74a4-54a8-468a-aa6b-960b324eda5a" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-597.481177567262" y="294.750598398304" />
   </Notes>
   <Annotations>
-    <Dynamo.Graph.Annotations.AnnotationModel guid="dc60ada9-7702-4985-88c7-8e2bb4a59d9d" annotationText="NODE DETAILS" left="-609.441172483905" top="-87.1633716019864" width="320.62666158331" height="469.247303333624" fontSize="36" InitialTop="-33.8300382686531" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
+    <Dynamo.Graph.Annotations.AnnotationModel guid="dc60ada9-7702-4985-88c7-8e2bb4a59d9d" annotationText="NODE DETAILS" left="-609.441172483905" top="-86.8300382686531" width="320.959994916643" height="469.580636666957" fontSize="36" InitialTop="-33.8300382686531" InitialHeight="468.580636666957" TextblockHeight="43" backgrouund="#FFD8D8D8">
       <Models ModelGuid="b082dd41-5491-4496-b969-f3721f1ecfbf" />
       <Models ModelGuid="f37fb496-6a4a-4c85-b327-09db468db2f2" />
       <Models ModelGuid="b9380e72-fcf3-4429-85a2-dd8eb8dd1bbf" />
@@ -157,6 +157,6 @@ if run:
   </Annotations>
   <Presets />
   <Cameras>
-    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+    <Camera Name="Background Preview" eyeX="77252.1676219424" eyeY="81828.3515621919" eyeZ="62977.5425910695" lookX="-77257.1676219424" lookY="-81817.3515621919" lookZ="-62985.5425910695" upX="-0.35187066844589" upY="0.891006524188369" upZ="-0.286870016804138" />
   </Cameras>
 </Workspace>
