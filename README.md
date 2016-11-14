@@ -4,21 +4,21 @@ BimorphNodes is a collection of powerful utility nodes for Dynamo and Revit desi
 # Version 1.0 
 Whats included:
 
-# DWG | DGN
-CurvesFromCADLayers 
-CADLayerNames
-CADLayersInUse
+### DWG | DGN
+1. CurvesFromCADLayers 
+2. CADLayerNames
+3. CADLayersInUse
 
-# Revit.LineStyles:
-CreateNewLineStyles
-GetLineStylesAttributes
+### Revit.LineStyles:
+1. CreateNewLineStyles
+2. GetLineStylesAttributes
 
-# Revit.Schedules
-GetScheduleData
-GetScheduleDataColumns
-GetScheduleDataRows
+### Revit.Schedules
+1. GetScheduleData
+2. GetScheduleDataColumns
+3. GetScheduleDataRows
 
-# Revit.Sheets
-DuplicateSheets
-RenumberOrRenameSheets
-GetSheetsFromSchedule
+### Revit.Sheets
+1. DuplicateSheets
+2. RenumberOrRenameSheets
+3. GetSheetsFromSchedule
