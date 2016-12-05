@@ -1,0 +1,192 @@
+<Workspace Version="1.0.0.1180" X="330.177485160532" Y="248.777693479064" zoom="0.835859038594911" Name="bimorph.CurvesFromCADLayers" Description="Extract curves from a CAD link or import by layer name. Curves are organised into layer sublists. To create Revit Model Lines set the createModelLines input to true&#xD;&#xA;&#xD;&#xA;This node is also optimised to convert curve types that typically fail when using Revit.Elements.Element.Curves or Full Explode" ID="0eeb8f98-a56a-4c60-af50-994a0f209a37" Category="BimorphNodes.DWG  |  DGN.Create">
+  <NamespaceResolutionMap>
+    <ClassMap partialName="ImportInstance" resolvedName="Revit.Elements.ImportInstance" assemblyName="RevitNodes.dll" />
+    <ClassMap partialName="Curve" resolvedName="Autodesk.DesignScript.Geometry.Curve" assemblyName="ProtoGeometry.dll" />
+  </NamespaceResolutionMap>
+  <Elements>
+    <PythonNodeModels.PythonNode guid="3d8c1b43-da91-46ba-9bdb-facf239939b6" type="PythonNodeModels.PythonNode" nickname="Python Script" x="822.989615682354" y="269.724529066327" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="true" inputcount="3">
+      <Script>#Copyright 2016. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
+#Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes
+#GitHub: https://github.com/ThomasMahon/bimorphNodes/
+#Follow: facebook.com/bimorphBIM | linkedin.com/company/bimorph-bim | @bimorphBIM
+
+import clr
+
+# Import DocumentManager and TransactionManager
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+from System.Collections.Generic import *
+
+clr.AddReference("RevitNodes")
+import Revit
+# Import ToProtoType, ToRevitType geometry conversion extension methods
+clr.ImportExtensions(Revit.GeometryConversion)
+
+# Import RevitAPI
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+
+doc = DocumentManager.Instance.CurrentDBDocument
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+
+importDWG = UnwrapElement(IN[0])
+nameOfLayersToImport = IN[1]
+revitModelLines = IN[2]
+
+if nameOfLayersToImport == None or nameOfLayersToImport == []: 
+	catSub = importDWG.Category.SubCategories
+	enum = catSub.GetEnumerator()
+	
+	nameOfLayersToImport = []
+	while enum.MoveNext():
+		layerName = enum.Current.Name
+		nameOfLayersToImport.Add( layerName )
+
+if isinstance(nameOfLayersToImport, list):
+	layerList = nameOfLayersToImport
+else:
+	layerList = [nameOfLayersToImport]
+
+def storageDictionary(crvListDict, eleGraphicStyleName, e):
+	if eleGraphicStyleName in crvListDict.keys(): 
+		crvListDict[eleGraphicStyleName].append( e )
+	else:
+		crvListDict[eleGraphicStyleName] = []
+		crvListDict[eleGraphicStyleName].append( e )
+		
+	
+def curveConversion (crv, revitModelLines, crvObject, refPlane):
+	if revitModelLines == True:
+		crv.Add( doc.Create.NewModelCurve( crvObject, refPlane) )
+	else:
+		crv.Add( crvObject.ToProtoType() )
+	
+TransactionManager.Instance.EnsureInTransaction(doc)
+
+geomEnum = importDWG.Geometry[ Options() ].GetEnumerator()
+
+crvListDict = dict()
+failedFilter = []
+while geomEnum.MoveNext(): 
+	instGeom = geomEnum.Current.GetInstanceGeometry()
+	
+	instGeomEnum = instGeom.GetEnumerator()
+	while instGeomEnum.MoveNext():
+		e = instGeomEnum.Current
+		try:
+			graphicStyleId = e.GraphicsStyleId
+					
+			eleGraphicStyle = doc.GetElement(graphicStyleId)
+			eleGraphicStyleName = eleGraphicStyle.GraphicsStyleCategory.Name
+			
+			
+			if eleGraphicStyleName in layerList: 
+				storageDictionary(crvListDict, eleGraphicStyleName, e)
+
+		except:
+			try: 
+				vol = e.Volume
+				
+				if vol == 0.0: 
+					edgesList = e.Edges
+					edgesEnum = edgesList.GetEnumerator()
+
+					while edgesEnum.MoveNext():
+						edge = edgesEnum.Current
+						eleGraphicStyle = doc.GetElement(edge.GraphicsStyleId)
+						eleGraphicStyleName = eleGraphicStyle.GraphicsStyleCategory.Name
+						
+						if eleGraphicStyleName in layerList:
+							storageDictionary(crvListDict, eleGraphicStyleName, edge.AsCurve() )
+							
+			except: 
+				failedFilter.Add(e)
+
+if "2015" in app.VersionName:
+	levelParam = "Base Level"
+else:
+	levelParam = BuiltInParameter.IMPORT_BASE_LEVEL
+	
+levelId = importDWG.Parameter[levelParam].AsElementId()
+pln = SketchPlane.Create(doc, levelId )
+	
+crvList = [ crv for crv in crvListDict.values() ] 
+
+failedConversion = []
+modelLines =  []
+for subList in crvList: 
+	crv = []
+	for i in subList: 
+		try:
+			crvType = i.GetType()
+			if crvType != Autodesk.Revit.DB.PolyLine:
+				curveConversion(crv, revitModelLines, i, pln)
+			else: 
+				pt = i.GetCoordinates()
+				count = i.NumberOfCoordinates
+					
+				for j in range(count-1): 
+					ln = Line.CreateBound(pt[j], pt[j+1])
+					curveConversion(crv, revitModelLines, ln, pln)
+						
+		except: 
+			failedConversion.Add( i )
+				
+	modelLines.Add(crv)
+	
+TransactionManager.Instance.TransactionTaskDone()
+
+OUT = modelLines, crvListDict.keys()</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="55b364a9-7839-4d2a-ab0b-2f5d1a7b7314" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1256.84713666969" y="214.86322678884" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="curves" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="3086e413-39fe-4072-9f07-f475b42bc8f3" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="316.700806790444" y="171.764475862281" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Input the ImportInstance to convert to curves&#xD;&#xA;importInstance" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="309b3676-762e-475e-9f63-5894213f4263" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="97.0662222728431" y="262.45081223975" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Enter the layer names for conversion. Leave blank to convert all layers&#xD;&#xA;layerNames:string[]={}" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="e3ef7bbd-288c-4278-95ec-f9c2f3ee8a28" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="293.574594292442" y="367.187915156016" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Set to True to convert into Revit Model Lines&#xD;&#xA;createModelLines:bool=false" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="07b975b7-4f69-4510-be7e-d4144f3cf270" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1244.37765662966" y="293.390387952285" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="layerKeys" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="ab0580d9-eaa4-4ed4-b8c1-65b9f506126a" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.FirstItem" x="1020.02415308812" y="214.705115049827" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.FirstItem@var[]..[]" />
+    <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="97b1ece9-7fc2-4563-ae17-670d8d56654d" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.LastItem" x="1010.49482024451" y="337.688187822384" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.LastItem@var[]..[]" />
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="3d8c1b43-da91-46ba-9bdb-facf239939b6" start_index="0" end="ab0580d9-eaa4-4ed4-b8c1-65b9f506126a" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="3d8c1b43-da91-46ba-9bdb-facf239939b6" start_index="0" end="97b1ece9-7fc2-4563-ae17-670d8d56654d" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="3086e413-39fe-4072-9f07-f475b42bc8f3" start_index="0" end="3d8c1b43-da91-46ba-9bdb-facf239939b6" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="309b3676-762e-475e-9f63-5894213f4263" start_index="0" end="3d8c1b43-da91-46ba-9bdb-facf239939b6" end_index="1" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="e3ef7bbd-288c-4278-95ec-f9c2f3ee8a28" start_index="0" end="3d8c1b43-da91-46ba-9bdb-facf239939b6" end_index="2" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="ab0580d9-eaa4-4ed4-b8c1-65b9f506126a" start_index="0" end="55b364a9-7839-4d2a-ab0b-2f5d1a7b7314" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="97b1ece9-7fc2-4563-ae17-670d8d56654d" start_index="0" end="07b975b7-4f69-4510-be7e-d4144f3cf270" end_index="0" portType="0" />
+  </Connectors>
+  <Notes>
+    <Dynamo.Graph.Notes.NoteModel guid="96f3c157-05f4-46c8-a957-7b44188d6644" text="AUTHOR + COPYRIGHT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Copyright 2016 Bimorph Consultancy &#xD;&#xA;Thomas Mahon&#xD;&#xA;@Thomas__Mahon" x="-301.044431121986" y="191.520732171056" />
+    <Dynamo.Graph.Notes.NoteModel guid="4342ef61-01d7-40d4-80df-0f97881fda5f" text="CONTACT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk&#xD;&#xA;&#xD;&#xA;info@bimorph.co.uk&#xD;&#xA;@bimorphBIM" x="-301.670566738381" y="307.333024439514" />
+    <Dynamo.Graph.Notes.NoteModel guid="5f6ba92c-532a-4fb4-abdb-d62bd34a1cfa" text="PACKAGE NAME&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;bimorphNodes" x="-301.698580163044" y="106.743245453109" />
+    <Dynamo.Graph.Notes.NoteModel guid="e29d92e9-df3f-40c7-8e44-0c8d948b20e8" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;To report bugs or suggest improvements or new features, visit:&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-300.746035936088" y="602.379205425264" />
+    <Dynamo.Graph.Notes.NoteModel guid="fe857338-daed-455a-bedf-cfc8d5c3d591" text="FOLLOW US&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Follow us to get the latest news on bimorph digital engineering and updates to bimorphNodes:&#xD;&#xA;&#xD;&#xA;FACEBOOK:  facebook.com/bimorphBIM&#xD;&#xA;LINKEDIN:  linkedin.com/company/bimorph-bim&#xD;&#xA;TWITTER:  @bimorphBIM" x="-301.59157699047" y="438.389234510754" />
+  </Notes>
+  <Annotations>
+    <Dynamo.Graph.Annotations.AnnotationModel guid="60093d30-95cf-486e-9f4f-7c683150bdb8" annotationText="NODE DETAILS" left="-311.698580163044" top="53.4099121197757" width="319.619210893623" height="679.635959972155" fontSize="36" InitialTop="106.743245453109" InitialHeight="635.635959972155" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
+      <Models ModelGuid="96f3c157-05f4-46c8-a957-7b44188d6644" />
+      <Models ModelGuid="4342ef61-01d7-40d4-80df-0f97881fda5f" />
+      <Models ModelGuid="5f6ba92c-532a-4fb4-abdb-d62bd34a1cfa" />
+      <Models ModelGuid="e29d92e9-df3f-40c7-8e44-0c8d948b20e8" />
+      <Models ModelGuid="fe857338-daed-455a-bedf-cfc8d5c3d591" />
+    </Dynamo.Graph.Annotations.AnnotationModel>
+  </Annotations>
+  <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

@@ -1,0 +1,181 @@
+<Workspace Version="1.0.0.1180" X="658.168549418942" Y="273.164945270642" zoom="0.829641093101599" Name="bimorph.DuplicateSheets" Description="Duplicate selected sheets and any placed views with options to control if views are duplicated and the method of duplication&#xD;&#xA;&#xD;&#xA;ViewSchedules and Legends are currently not supported" ID="e3122676-1462-4548-a45e-e3584ece95a1" Category="BimorphNodes.Revit.Sheets.Create">
+  <NamespaceResolutionMap>
+    <ClassMap partialName="List" resolvedName="DSCore.List" assemblyName="DSCoreNodes.dll" />
+    <ClassMap partialName="Sheet" resolvedName="Revit.Elements.Views.Sheet" assemblyName="RevitNodes.dll" />
+  </NamespaceResolutionMap>
+  <Elements>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="18d432fb-2cfa-4862-87d6-98173716a70e" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="66.88570609806" y="-56.3846203036306" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Enter the Revit sheets to duplicate&#xD;&#xA;sheets:Sheet[]" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="1c4183cd-4e9e-4524-bf7d-de344d17e26a" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="951.677293129378" y="64.6983152067723" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="report" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="d1b571ee-2966-422d-a4ff-65e4cce079ee" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="27.0283436789421" y="18.0580368117111" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Set to True to dupicate the input sheets&#xD;&#xA;run:bool" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="f8c2f096-4140-45f1-9e9d-dcd4e49c5cd5" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-10.5293550094" y="97.9017586444587" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Set to True to duplicate views on the sheets&#xD;&#xA;duplicateViews:bool" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="ab290dd9-5b98-4dbc-8c0a-5b40e1eaa55d" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-232.209083871402" y="185.497103539403" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Enter DuplicateOption: 0 = Duplicate. 1 = WithDetailing. 2 = AsDependent&#xD;&#xA;duplicateOption:int=0" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="6e5353df-fe35-45f7-99ec-99a70c21ee11" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-154.784684521444" y="265.756430048158" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Add the suffix to add to duplicated sheet number and view names&#xD;&#xA;suffix:string" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <PythonNodeModels.PythonNode guid="9733c8e4-7694-4843-a993-c3c616b58571" type="PythonNodeModels.PythonNode" nickname="Python Script" x="588.244863672027" y="59.4078203840259" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="6">
+      <Script>#Copyright 2016. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
+#Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes
+#GitHub: https://github.com/ThomasMahon/bimorphNodes/
+#Follow: facebook.com/bimorphBIM | linkedin.com/company/bimorph-bim | @bimorphBIM
+
+import System
+import itertools
+
+import clr
+
+# Import ToDSType(bool) extension method
+clr.AddReference("RevitNodes")
+import Revit
+clr.ImportExtensions(Revit.Elements)
+
+# Import DocumentManager and TransactionManager
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+from System.Collections.Generic import *
+
+# Import RevitAPI
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+from Autodesk.Revit.Exceptions import *
+
+doc = DocumentManager.Instance.CurrentDBDocument
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+
+sheets = IN[0]
+run = IN[1]
+duplicateWithViews = IN[2]
+duplicateOption = (ViewDuplicateOption.Duplicate, ViewDuplicateOption.WithDetailing, ViewDuplicateOption.AsDependent)[ IN[3] ]
+affix = IN[4]
+prefix = IN[5]
+
+if run:
+	if isinstance(sheets, list):
+		sheetsList = sheets
+	else:
+		sheetsList = [sheets]
+		
+	TransactionManager.Instance.EnsureInTransaction(doc)
+	
+	allSheets = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Sheets)
+	allSheetNumbers = []
+	for i in allSheets:
+		allSheetNumbers.Add( i.SheetNumber )
+	
+	allViews = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Views)
+	allViewNames = []
+	for i in allViews:
+		allViewNames.Add( i.ViewName )
+	
+	report = []
+	newSheetList = []
+	sheetViews = []
+	for i in sheetsList:
+		doc.Regenerate() 
+		unwrapSheet = UnwrapElement(i)
+		sheetSuccessfullyDuplicated = False
+		
+		titleBlock = FilteredElementCollector(doc, ElementId(i.Id)).OfCategory(BuiltInCategory.OST_TitleBlocks).ToElements()
+		titleBlockSymbol = titleBlock[0].Symbol
+		
+		currentSheetNumber = i.SheetNumber
+		currentSheetName = unwrapSheet.get_Parameter( BuiltInParameter.SHEET_NAME ).AsString()
+			
+		newSheetNumberString = prefix + currentSheetNumber + affix
+		if newSheetNumberString in allSheetNumbers:
+			report.Add("Sheet " + newSheetNumberString + " exists in the document and cannot be duplicated" )
+		else:
+			newSheet = ViewSheet.Create(doc, ElementId(titleBlockSymbol.ToDSType(True).Id) )
+			sheetSuccessfullyDuplicated = True
+			
+			sheetNumberParam = newSheet.get_Parameter( BuiltInParameter.SHEET_NUMBER )
+			sheetNumberParam.Set( newSheetNumberString )
+			allSheetNumbers.Add( newSheetNumberString )
+		
+			sheetName = newSheet.get_Parameter( BuiltInParameter.SHEET_NAME )
+			sheetName.Set(currentSheetName)
+			
+			newSheetList.Add( doc.GetElement(newSheet.Id) )
+			
+			doc.Regenerate()
+			if duplicateWithViews and sheetSuccessfullyDuplicated:
+				viewPorts = FilteredElementCollector(doc, ElementId(i.Id)).OfCategory(BuiltInCategory.OST_Viewports).ToElements()
+
+				ptXYZ = [] 
+				for j in viewPorts:
+					currentViewport = j
+					ptXYZ = currentViewport.GetBoxCenter()
+					
+					getView = doc.GetElement(currentViewport.ViewId)
+					newViewName = prefix + getView.ViewName + affix
+					if newViewName in allViewNames:
+						report.Add("View " + newViewName + " exists in the document and cannot be duplicated" )
+					else:
+						newView = getView.Duplicate(duplicateOption)
+						newViewNameParam = doc.GetElement(newView).get_Parameter( BuiltInParameter.VIEW_NAME )
+						newViewNameParam.Set(newViewName)
+						
+						addView = Viewport.Create(doc, ElementId(newSheet.ToDSType(True).Id), newView, ptXYZ)
+						allViewNames.Add( newViewName )
+
+	TransactionManager.Instance.TransactionTaskDone()
+	if report == []:
+		OUT = "Duplication process successful"
+	else:	
+		OUT = report, newSheetList</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="b16eb481-9538-486e-866d-f3860e03c81d" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.LastItem" x="817.415579098086" y="167.726611144228" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.LastItem@var[]..[]" />
+    <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="4187e309-7264-4d41-b39d-1b342595d6c7" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.FirstItem" x="810.697611104103" y="63.7726180044626" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.FirstItem@var[]..[]" />
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="4068f5cb-1356-41e0-be2a-ca0cb79f046e" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="946.995141391518" y="168.753501179851" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="Sheets" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="b1a58513-1870-43e8-8855-6a8f2279a39e" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-289.010836282977" y="346.956634046821" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Enter an optional affix at the start of the duplicated sheet number and view names&#xD;&#xA;affix:string=&quot;&quot;" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="18d432fb-2cfa-4862-87d6-98173716a70e" start_index="0" end="9733c8e4-7694-4843-a993-c3c616b58571" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="d1b571ee-2966-422d-a4ff-65e4cce079ee" start_index="0" end="9733c8e4-7694-4843-a993-c3c616b58571" end_index="1" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="f8c2f096-4140-45f1-9e9d-dcd4e49c5cd5" start_index="0" end="9733c8e4-7694-4843-a993-c3c616b58571" end_index="2" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="ab290dd9-5b98-4dbc-8c0a-5b40e1eaa55d" start_index="0" end="9733c8e4-7694-4843-a993-c3c616b58571" end_index="3" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="6e5353df-fe35-45f7-99ec-99a70c21ee11" start_index="0" end="9733c8e4-7694-4843-a993-c3c616b58571" end_index="4" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="9733c8e4-7694-4843-a993-c3c616b58571" start_index="0" end="b16eb481-9538-486e-866d-f3860e03c81d" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="9733c8e4-7694-4843-a993-c3c616b58571" start_index="0" end="4187e309-7264-4d41-b39d-1b342595d6c7" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="b16eb481-9538-486e-866d-f3860e03c81d" start_index="0" end="4068f5cb-1356-41e0-be2a-ca0cb79f046e" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="4187e309-7264-4d41-b39d-1b342595d6c7" start_index="0" end="1c4183cd-4e9e-4524-bf7d-de344d17e26a" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="b1a58513-1870-43e8-8855-6a8f2279a39e" start_index="0" end="9733c8e4-7694-4843-a993-c3c616b58571" end_index="5" portType="0" />
+  </Connectors>
+  <Notes>
+    <Dynamo.Graph.Notes.NoteModel guid="b082dd41-5491-4496-b969-f3721f1ecfbf" text="AUTHOR + COPYRIGHT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Copyright 2016 Bimorph Consultancy &#xD;&#xA;Thomas Mahon&#xD;&#xA;@Thomas__Mahon" x="-671.309562246622" y="-19.4846684050971" />
+    <Dynamo.Graph.Notes.NoteModel guid="f37fb496-6a4a-4c85-b327-09db468db2f2" text="CONTACT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk&#xD;&#xA;&#xD;&#xA;info@bimorph.co.uk&#xD;&#xA;@bimorphBIM" x="-671.935697863017" y="96.3276238633607" />
+    <Dynamo.Graph.Notes.NoteModel guid="b9380e72-fcf3-4429-85a2-dd8eb8dd1bbf" text="PACKAGE NAME&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;bimorphNodes" x="-671.96371128768" y="-104.262155123044" />
+    <Dynamo.Graph.Notes.NoteModel guid="c0cb74a4-54a8-468a-aa6b-960b324eda5a" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;To report bugs or suggest improvements or new features, visit:&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-671.011167060724" y="391.373804849111" />
+    <Dynamo.Graph.Notes.NoteModel guid="65448d67-ea02-44db-a15e-50458c40c2fe" text="FOLLOW US&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Follow us to get the latest news on bimorph digital engineering and updates to bimorphNodes:&#xD;&#xA;&#xD;&#xA;FACEBOOK:  facebook.com/bimorphBIM&#xD;&#xA;LINKEDIN:  linkedin.com/company/bimorph-bim&#xD;&#xA;TWITTER:  @bimorphBIM" x="-671.856708115106" y="227.383833934601" />
+  </Notes>
+  <Annotations>
+    <Dynamo.Graph.Annotations.AnnotationModel guid="dc60ada9-7702-4985-88c7-8e2bb4a59d9d" annotationText="NODE DETAILS" left="-681.96371128768" top="-157.595488456377" width="319.619210893623" height="679.635959972155" fontSize="36" InitialTop="-104.262155123044" InitialHeight="468.580636666957" TextblockHeight="43.3333333333333" backgrouund="#FFD8D8D8">
+      <Models ModelGuid="b082dd41-5491-4496-b969-f3721f1ecfbf" />
+      <Models ModelGuid="f37fb496-6a4a-4c85-b327-09db468db2f2" />
+      <Models ModelGuid="b9380e72-fcf3-4429-85a2-dd8eb8dd1bbf" />
+      <Models ModelGuid="c0cb74a4-54a8-468a-aa6b-960b324eda5a" />
+      <Models ModelGuid="65448d67-ea02-44db-a15e-50458c40c2fe" />
+    </Dynamo.Graph.Annotations.AnnotationModel>
+  </Annotations>
+  <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>
