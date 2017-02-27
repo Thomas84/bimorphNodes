@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BimorphNodes</name>
+    </assembly>
+    <members>
+        <member name="T:CAD">
+            <summary>
+            DWG DGN class provides utilities for converting curves from CAD links or Imports using layer names as filters. 
+            There are methods for reporting all the CAD links or Imports in the document and methods to convert curves to detail lines also using layer names as filters
+            </summary>
+        </member>
+        <member name="M:CAD.#ctor(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.Object}})">
+            Default constructor for the curve dictionary
+        </member>
+        <member name="M:CAD.addToDictionary(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.Object}},System.String,Autodesk.Revit.DB.GeometryObject)">
+            Add item to the curve dictionary dueing the initial curve extraction process. If the key doesnt exist then it gets added and the curve object is added to it
+        </member>
+        <member name="M:CAD.supportPlaneFromCADImport(Autodesk.Revit.DB.Document,Autodesk.Revit.DB.ImportInstance)">
+            Creates a new support plane from a CAD link or import
+        </member>
+        <member name="M:CAD.curveConversion(Autodesk.Revit.DB.Document,Autodesk.Revit.DB.ImportInstance,System.Object,System.Collections.Generic.Dictionary{System.String,Autodesk.Revit.DB.GraphicsStyle},Autodesk.Revit.DB.View,System.Boolean,System.Boolean,System.Boolean,System.String)">
+            Converts curves extracted from the CAD link or import. Based on the user inputs, the curves are converted to prototypes or Revit Model or Detail lines
+        </member>
+        <member name="M:CAD.extractCurvesFromCADImports(Autodesk.Revit.DB.Document,Autodesk.Revit.DB.ImportInstance,System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.String})">
+            Extract the curves from the CAD link or import by layer name and organise the curves into sublists based on their layer names. This function only outputs Revit.Elements.Element unprocessed
+        </member>
+        <member name="M:CAD.curveProcessor(Autodesk.Revit.DB.Document,Autodesk.Revit.DB.ImportInstance,System.Collections.Generic.List{System.Collections.Generic.List{System.Object}},System.Collections.Generic.Dictionary{System.String,Autodesk.Revit.DB.GraphicsStyle},System.Collections.Generic.List{System.String},Autodesk.Revit.DB.View,System.Boolean,System.Boolean,System.Boolean)">
+            Processes all curves and converts them to DS types or Revit Model types if specified by the user
+        </member>
+        <member name="M:CAD.CurvesFromCADLayers(Revit.Elements.Element,System.Collections.Generic.List{System.String},System.Boolean,System.Collections.Generic.List{System.String})">
+            <summary>
+            Convert curves from a CAD link or import by layer name. Curves are organised into sublists by layer. Enter LineStyle names to map each sublist to that style during conversion.&#xD;&#xA;&#xD;&#xA;The node is optimised to convert curve types that typically fail when using Dynamo Element.Curves node or Revit Explode
+            </summary>
+            <param name="importInstance">Input the ImportInstance to convert to curves</param>
+            <param name="layerNames">Enter the layer names for conversion. Leave blank to convert all layers. Names are case-sensitive</param>
+            <param name="createModelLines">Set to True to convert into Revit Model Lines</param>
+            <param name="lineStyleMap">Enter the LineStyle name(s) to map to each Model Line set. Longest lacing is used by default</param>
+            <returns name="Curves">Curves[][]</returns>
+            <returns name="layerKeys">string[]</returns>
+            <search> curves, lines, from, CAD, DWG, DGN, layer, layers, modellines, model, create </search>
+        </member>
+        <member name="M:CAD.DetailLinesFromCADLayers(Revit.Elements.Element,Revit.Elements.Views.View,System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.String})">
+            <summary>
+            Convert curves from a CAD link or import to Revit Detail Lines by layer name. Detail Lines are organised into sublists by layer. Enter LineStyle names to map each sublist to that style during conversion.&#xD;&#xA;&#xD;&#xA;The node is optimised to convert curve types that typically fail when using Dynamo Element.Curves node or Revit Explode
+            </summary>
+            <param name="importInstance">Input the ImportInstance to convert to curves</param>
+            <param name="view">Select the target View for the Detail Lines. The View should be related to the ImportInstance</param>
+            <param name="layerNames">Enter the layer names for conversion. Leave blank to convert all layers. Names are case-sensitive</param>
+            <param name="lineStyleMap">Enter the LineStyle name(s) to map to each Detail Line set. Longest lacing is used by default</param>
+            <returns name="DetailLines">DetailLines[][]</returns>
+            <returns name="layerKeys">string[]</returns>
+            <search> curves, lines, from, CAD, DWG, DGN, layer, layers, detaillines, detail, create </search>
+        </member>
+        <member name="T:Curve">
+            <summary>
+            Curves class includes methods for interacting with Dynamo curves and Revit Model and Detail curves
+            </summary>
+        </member>
+        <member name="F:Curve._deleteReport">
+            Private variables
+        </member>
+        <member name="M:Curve.#ctor">
+            Default constructor
+        </member>
+        <member name="M:Curve.getStartEndPoints(Autodesk.DesignScript.Geometry.Curve)">
+            Return the start, mid and end points of the input curve
+        </member>
+        <member name="M:Curve.convertToList(System.Collections.Generic.IEnumerable{System.Object})">
+            Cast a generic list object into a List. Object is derived from a static object which cant be iterated without being cast to IEnumerable class
+        </member>
+        <member name="M:Curve.convertToRevitElements(System.Collections.Generic.IEnumerable{System.Object})">
+            Convert a 1D list of curve objects into Revit DB Elements. Object is derived from a static object which cant be iterated without being cast to IEnumerable class
+        </member>
+        <member name="M:Curve.convertToRevitElements2D(System.Collections.Generic.List{System.Object})">
+            Convert a 2D list of curve objects into Revit DB Elements. Object is derived from a static object which cant be iterated without being cast to IEnumerable class
+        </member>
+        <member name="M:Curve.convertToDynCurve(System.Object,System.Boolean)">
+            Converts generic curve object into Proto (Dynamo) curve object
+        </member>
+        <member name="M:Curve.curveTypeConversion(System.Collections.Generic.List{System.Object},Autodesk.Revit.DB.Document)">
+            Attempts to casts elements into Revit.Elements.Element objects (Dynamo Revit elements) and is filtered to remove any objects that dont pass the CurveElement filter. If the try fails, input curves are assumed to be Dynamo curves and returned unchanged
+        </member>
+        <member name="M:Curve.coincidenceStartEndPoints(Autodesk.DesignScript.Geometry.Point,System.Collections.Generic.List{Autodesk.DesignScript.Geometry.Point},System.Int32)">
+            Evaluates the start/end points of the compare curve against an input point from the test curve to test for coincidence
+        </member>
+        <member name="M:Curve.vecNormalsTest(Autodesk.DesignScript.Geometry.Curve,Autodesk.DesignScript.Geometry.Curve,System.Int32,System.Boolean)">
+            Evaluate the dot product of the normals of the test curve element and the compare curve element. Evaluated at the start, mid and end for dot product equality
+        </member>
+        <member name="M:Curve.cleanRevitDuplicates(System.Collections.Generic.List{System.Object},System.Collections.Generic.List{System.Collections.Generic.List{System.Object}},System.Collections.Generic.List{System.String})">
+            Cleans duplicate curve list comprised of Revit elements - removes one curve from each sub list and adds it to crvCleaned. Includes rule for retaining curves by line style name as input by the user, otherwise first in first out rules apply
+        </member>
+        <member name="M:Curve.cleanProtoDuplicates(System.Collections.Generic.List{System.Object},System.Collections.Generic.List{System.Collections.Generic.List{System.Object}},System.String,System.Boolean)">
+            Cleans the duplicate curve list comprised of Dynamo curves - removes one curve from each sub list and adds it to crvCleaned - first in first out rules apply
+        </member>
+        <member name="M:Curve.RemoveDuplicateCurves(System.Collections.Generic.List{System.Object},System.Collections.Generic.List{System.String},System.Boolean)">
+            <summary>
+            Removes duplicates from a list of Curves. Dynamo Curves, Revit Model or Detail Lines are all supported. Revit Curves can be deleted from the document. Input LineStyle names to retain curves of that style.&#xD;&#xA;&#xD;&#xA;LineStyle list are iterated until a match is found. If no matches are found, first-in first-out rules apply. To simplify model element selection in Revit, heterogeneous lists (any element type) can be input as the list is filtered before processing. 
+            </summary>
+            <param name="curves">Enter a list of Curves to remove any duplicates. Dynamo Curves, Revit Model Lines or Revit Detail Lines can be input</param>
+            <param name="retainByLineStyles">Enter LineStyle name(s) to retain Curves of that style where duplicates are found. Names are case-sensitive</param>
+            <param name="deleteRevitCurves">Set to True to delete the duplicate Revit Curves from the document</param>
+            <returns name="cleanedCurves">var[]</returns>
+            <returns name="duplicateCurves">var[][]</returns>
+            <returns name="report">var[][]</returns>
+            <search> delete, duplicate, lines, curves, modellines, model, detail, detaillines, remove </search>
+        </member>
+        <member name="T:BimorphNodes.Infrastructure.Utils">
+            <summary>
+            Help classes for BimorphNodes
+            </summary>
+        </member>
+        <member name="M:BimorphNodes.Infrastructure.Utils.UnwrapElement(Revit.Elements.Element)">
+            <summary>
+            Unwraps the element.
+            </summary>
+            <param name="e">The e.</param>
+            <returns></returns>
+        </member>
+        <member name="M:BimorphNodes.Infrastructure.Utils.WrapToList``1(System.Object)">
+            <summary>
+            Wraps to list.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="obj">The object.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Revit.Sheets">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:Revit.Sheets.DuplicateSheets(Revit.Elements.Views.Sheet[],System.Boolean,System.Boolean,Autodesk.Revit.DB.ViewDuplicateOption,System.String,System.String)">
+            <summary>
+            Duplicates the sheets.
+            </summary>
+            <param name="sheets">The sheets.</param>
+            <param name="run">if set to <c>true</c> [run].</param>
+            <param name="duplicateWithViews">if set to <c>true</c> [duplicate views].</param>
+            <param name="duplicateOption">The duplic option.</param>
+            <param name="suffix">The suffix.</param>
+            <param name="affix">The affix.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Revit.Sheets.DuplicateSheets(Revit.Elements.Views.Sheet[],System.Boolean,System.Boolean,System.Int32,System.String,System.String)">
+            <summary>
+            Duplicate selected Sheets with options to control if placed Views are also duplicated and the method of duplication.&#xD;&#xA;&#xD;&#xA;The report output provides a list of any Sheets and/or Views that fail to duplicate or View names that were cleaned of illegal characters
+            </summary>
+            <param name="sheets">Enter the Revit Sheets to duplicate</param>
+            <param name="run">Set to True to dupicate the input Sheets</param>
+            <param name="duplicateWithViews">Set to True to duplicate placed Views on the Sheets</param>
+            <param name="duplicateOption">Enter View Duplicate Option: 0 = Duplicate. 1 = WithDetailing. 2 = AsDependent</param>
+            <param name="suffix">Enter a suffix to the duplicated Sheet number and View names. Leave blank to add an prefix only</param>
+            <param name="prefix">Enter an optional prefix at the start of the duplicated Sheet number and View names. Leave blank to add a suffix only</param>
+            <returns name="report">The duplication report</returns>
+            <returns name="Sheets">Sheets</returns>
+            <returns name="Views">Views</returns>
+            <search>
+            Duplicate, Sheets
+            </search>
+        </member>
+    </members>
+</doc>
