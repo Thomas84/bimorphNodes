@@ -1,0 +1,97 @@
+<Workspace Version="1.0.0.1180" X="722.95119678157" Y="300.889019456092" zoom="0.873646406206628" Name="bimorph.CADLayersInUse" Description="Get the list of layer names from a CAD link or import that are in use and contain curves" ID="3782f978-48c2-4a36-bb8f-abe01599c833" Category="BimorphNodes.CAD.Query">
+  <NamespaceResolutionMap />
+  <Elements>
+    <PythonNodeModels.PythonNode guid="6cf618ed-b93d-484e-a8e0-8a499ad32a12" type="PythonNodeModels.PythonNode" nickname="Python Script" x="204.537488490536" y="-45.4625115094643" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="1">
+      <Script>#Copyright 2017. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
+#Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes
+#GitHub: https://github.com/ThomasMahon/bimorphNodes/
+#Follow: facebook.com/bimorphBIM | linkedin.com/company/bimorph-bim | @bimorphBIM
+
+import clr
+
+# Import DocumentManager and TransactionManager
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+
+# Import RevitAPI
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+
+doc = DocumentManager.Instance.CurrentDBDocument
+
+importDWG = UnwrapElement(IN[0])
+
+geomEnum = importDWG.Geometry[ Options() ].GetEnumerator()
+
+failedFilter = []
+layerList = []
+while geomEnum.MoveNext(): 
+	instGeom = geomEnum.Current.GetInstanceGeometry()
+	
+	instGeomEnum = instGeom.GetEnumerator()
+	while instGeomEnum.MoveNext():
+		e = instGeomEnum.Current
+		try:
+			graphicStyleId = e.GraphicsStyleId
+					
+			eleGraphicStyle = doc.GetElement(graphicStyleId)
+			eleGraphicStyleName = eleGraphicStyle.GraphicsStyleCategory.Name
+			
+			layerList.Add(eleGraphicStyleName)
+			
+		except:
+			try:
+				vol = e.Volume
+				
+				if vol == 0.0:
+					edgesList = e.Edges
+					edgesEnum = edgesList.GetEnumerator()
+
+					while edgesEnum.MoveNext():
+						edge = edgesEnum.Current
+						eleGraphicStyle = doc.GetElement(edge.GraphicsStyleId)
+						eleGraphicStyleName = eleGraphicStyle.GraphicsStyleCategory.Name
+						
+						layerList.Add(eleGraphicStyleName)
+						break	
+			except:
+				failedFilter.Add(e)
+	
+OUT = set(layerList)</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="896b2b30-6e21-481d-b7c8-6aa656c914a9" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-347.117515700645" y="-47.7508133099397" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Input the ImportInstance to find layers that are in use&#xD;&#xA;importInstance" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="0f0d9e8a-2826-4f38-b1d3-fd5590072570" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="352.531678902561" y="-42.2344242368922" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="layerNames" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="6cf618ed-b93d-484e-a8e0-8a499ad32a12" start_index="0" end="0f0d9e8a-2826-4f38-b1d3-fd5590072570" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="896b2b30-6e21-481d-b7c8-6aa656c914a9" start_index="0" end="6cf618ed-b93d-484e-a8e0-8a499ad32a12" end_index="0" portType="0" />
+  </Connectors>
+  <Notes>
+    <Dynamo.Graph.Notes.NoteModel guid="9298cdcb-3cb8-4961-91d4-c9bc4bf5cbc0" text="AUTHOR + COPYRIGHT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Copyright 2017 Bimorph Consultancy &#xD;&#xA;Thomas Mahon&#xD;&#xA;@Thomas__Mahon" x="-740.861492023921" y="-52.3914520295918" />
+    <Dynamo.Graph.Notes.NoteModel guid="dc92220b-8957-462f-b309-2a0e8eb52bdb" text="CONTACT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk&#xD;&#xA;&#xD;&#xA;info@bimorph.co.uk&#xD;&#xA;@bimorphBIM" x="-741.487627640316" y="63.4208402388662" />
+    <Dynamo.Graph.Notes.NoteModel guid="a3ab358b-eff1-4314-8264-010259e1aabb" text="PACKAGE NAME&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;bimorphNodes" x="-741.515641064979" y="-137.168938747539" />
+    <Dynamo.Graph.Notes.NoteModel guid="6f3b3f60-5547-4e54-b7e8-a0e483076872" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;To report bugs or suggest improvements or new features, visit:&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-737.157502141635" y="491.852813499788" />
+    <Dynamo.Graph.Notes.NoteModel guid="76da04be-9edc-4e16-90a5-f4cb3760ca41" text="FOLLOW US&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Follow us to get the latest digital engineering news &amp; be the first to hear about bimorphNodes updates:&#xD;&#xA;&#xD;&#xA;FACEBOOK:  facebook.com/bimorphBIM&#xD;&#xA;LINKEDIN:  linkedin.com/company/bimorph-bim&#xD;&#xA;TWITTER:  @bimorphBIM" x="-739.138241428146" y="328.430441701342" />
+    <Dynamo.Graph.Notes.NoteModel guid="21812a1c-8eb0-4bc7-975d-400d2217ffa8" text="USER GUIDE + DOWNLOADS&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;For bimorphNodes user guides and downloadable example graphs, visit:&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk/bimorph-nodes" x="-740.597476221891" y="196.881477712105" />
+  </Notes>
+  <Annotations>
+    <Dynamo.Graph.Annotations.AnnotationModel guid="36c73e3a-920d-406b-93ff-8abbccef9ff6" annotationText="NODE DETAILS" left="-751.515641064979" top="-190.168938747539" width="323.358138923344" height="813.021752247327" fontSize="36" InitialTop="-137.168938747539" InitialHeight="769.021752247326" TextblockHeight="43" backgrouund="#FFD8D8D8">
+      <Models ModelGuid="9298cdcb-3cb8-4961-91d4-c9bc4bf5cbc0" />
+      <Models ModelGuid="dc92220b-8957-462f-b309-2a0e8eb52bdb" />
+      <Models ModelGuid="a3ab358b-eff1-4314-8264-010259e1aabb" />
+      <Models ModelGuid="6f3b3f60-5547-4e54-b7e8-a0e483076872" />
+      <Models ModelGuid="76da04be-9edc-4e16-90a5-f4cb3760ca41" />
+      <Models ModelGuid="21812a1c-8eb0-4bc7-975d-400d2217ffa8" />
+    </Dynamo.Graph.Annotations.AnnotationModel>
+  </Annotations>
+  <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

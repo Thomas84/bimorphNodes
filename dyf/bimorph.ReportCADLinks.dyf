@@ -1,0 +1,143 @@
+<Workspace Version="1.0.0.1180" X="1059.28984000529" Y="155.054082196274" zoom="0.802581508438051" Name="bimorph.ReportCADLinks" Description="Generates a report of all CAD links and imports in the document with key metrics. Linked and Imported CAD links are output into lists to aid with CAD link management." ID="7a4b00fc-cfc7-4b61-a7e1-9cd054eb7b5b" Category="BimorphNodes.CAD.Query">
+  <NamespaceResolutionMap />
+  <Elements>
+    <PythonNodeModels.PythonNode guid="94e0e99e-91a5-4210-8330-8b350df41cf1" type="PythonNodeModels.PythonNode" nickname="Python Script" x="280.97684241923" y="152.138719355641" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="true" inputcount="1">
+      <Script>#Copyright 2017. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
+#Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes
+#GitHub: https://github.com/ThomasMahon/bimorphNodes/
+#Follow: facebook.com/bimorphBIM | linkedin.com/company/bimorph-bim | @bimorphBIM
+
+import clr
+
+# Import RevitAPI
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+
+# Import DocumentManager and TransactionManager
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+#
+def convertToList(listToConvert):
+	if isinstance(listToConvert, list):
+		return listToConvert
+	else:
+		return [listToConvert]
+
+def cadAuditReporter(doc):
+	cadLinkCollector = FilteredElementCollector(doc).OfClass(ImportInstance)
+	cadLinks = cadLinkCollector.ToElements()
+	
+	CADLinkList = []
+	CADImportList = []
+	report = []
+	for cad in cadLinks:
+		name = cad.Parameter[BuiltInParameter.IMPORT_SYMBOL_NAME].AsString()
+		isLinked = cad.IsLinked
+		viewSpecific = cad.ViewSpecific 
+		levelHost = doc.GetElement(cad.LevelId)
+		
+		ownerViewId = "Owner View : N/A"
+		if viewSpecific:
+			ownerViewId = doc.GetElement( cad.OwnerViewId )
+			
+		workSetId = cad.WorksetId
+		worksetNames = None
+		wSetsInDoc = FilteredWorksetCollector( doc )
+		for w in wSetsInDoc:
+			if w.Id == workSetId:
+				worksetNames = "Workset : " + w.Name
+		
+		try:
+			cadType = doc.GetElement( cad.GetTypeId() )
+			cadExternalRef = cadType.GetExternalFileReference()
+			path = ModelPathUtils.ConvertModelPathToUserVisiblePath( cadExternalRef.GetAbsolutePath() )
+		
+		except:
+			path = "Path : N/A"
+		
+		if isLinked:
+			cadType = doc.GetElement( cad.GetTypeId() )
+			exRef = cadType.GetExternalFileReference()
+			linkStatus = exRef.GetLinkedFileStatus()
+		else:
+			linkStatus = "Not a Link"
+		
+		CADLinkList.Add( cad ) if isLinked else CADImportList.Add( cad )		
+		report.Add( [cad, name, "Is Linked : " + str(isLinked), "Status : " + str(linkStatus), "View Specific : " + str(viewSpecific), ownerViewId, worksetNames, path, levelHost] )
+			
+	return report, CADLinkList, CADImportList
+
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+
+processDocument = None
+if IN[0] == "" or IN[0] == []:
+	doc = DocumentManager.Instance.CurrentDBDocument
+	processDocument = cadAuditReporter(doc)
+	report = processDocument[0]
+	CADLinkList = processDocument[1]
+	CADImportList = processDocument[2]
+	
+else:
+	report = []
+	CADLinkList = []
+	CADImportList = []
+	filePath = convertToList(IN[0])
+	for path in filePath:
+		doc = app.OpenDocumentFile(FilePath( str(path) ), OpenOptions())
+		processDocument = cadAuditReporter(doc) 
+		report.Add(processDocument[0])
+		CADLinkList.Add(processDocument[1])
+		CADImportList.Add(processDocument[2])
+
+OUT = "No Linked or Imported CAD files found" if report == [] else report, CADLinkList, CADImportList</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="77d67e58-f210-4a6d-967c-bb4f3cf3be48" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="595.192338924348" y="161.135316603524" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="report" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="6c310c46-75c4-4cd0-a187-c1434128b6d1" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="594.746674859657" y="221.322362644879" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="CADLinks" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="28b716bc-0cde-465d-b5a3-1a252b9e16f4" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="594.773989627202" y="283.10063334483" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="CADImports" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CodeBlockNodeModel guid="e87a1b90-279e-4576-acf2-d9c78d436d5c" type="Dynamo.Graph.Nodes.CodeBlockNodeModel" nickname="Code Block" x="433.068802046039" y="154.849062242929" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" CodeText="OUT[0];&#xA;OUT[1];&#xA;OUT[2];" ShouldFocus="false" />
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="dec98d98-a6a6-48be-8685-59169e765078" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-459.000185441607" y="151.301490579447" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//To report the current document leave unconnected. To report an external Revit document or Family&#xD;&#xA;//input a File Path and the file will be audited silently (without needing to open the file)&#xD;&#xA;filePath:string=&quot;&quot;" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="70c174e0-262a-40cb-9425-bbd53956be14" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="-248.112293034007" y="269.752608810269" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//To refresh, switch a bool input to its opposing state&#xD;&#xA;refresh:bool=true" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="94e0e99e-91a5-4210-8330-8b350df41cf1" start_index="0" end="e87a1b90-279e-4576-acf2-d9c78d436d5c" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="e87a1b90-279e-4576-acf2-d9c78d436d5c" start_index="0" end="77d67e58-f210-4a6d-967c-bb4f3cf3be48" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="e87a1b90-279e-4576-acf2-d9c78d436d5c" start_index="1" end="6c310c46-75c4-4cd0-a187-c1434128b6d1" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="e87a1b90-279e-4576-acf2-d9c78d436d5c" start_index="2" end="28b716bc-0cde-465d-b5a3-1a252b9e16f4" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="dec98d98-a6a6-48be-8685-59169e765078" start_index="0" end="94e0e99e-91a5-4210-8330-8b350df41cf1" end_index="0" portType="0" />
+  </Connectors>
+  <Notes>
+    <Dynamo.Graph.Notes.NoteModel guid="ac42f7e4-f0c2-43c6-8990-2ef5566aafac" text="AUTHOR + COPYRIGHT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Copyright 2017 Bimorph Consultancy &#xD;&#xA;Thomas Mahon&#xD;&#xA;@Thomas__Mahon" x="-826.703508367664" y="156.11156389736" />
+    <Dynamo.Graph.Notes.NoteModel guid="7c7650a6-2a64-4a0f-bcad-fe55250fc088" text="CONTACT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk&#xD;&#xA;&#xD;&#xA;info@bimorph.co.uk&#xD;&#xA;@bimorphBIM" x="-827.329643984059" y="271.923856165818" />
+    <Dynamo.Graph.Notes.NoteModel guid="574a726e-1a7b-4e9f-afc6-8906b5a322ff" text="PACKAGE NAME&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;bimorphNodes" x="-827.357657408722" y="71.3340771794131" />
+    <Dynamo.Graph.Notes.NoteModel guid="df60eb6a-9bf5-4528-bb55-7ee362e8350c" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;To report bugs or suggest improvements or new features, visit:&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="-822.999518485379" y="700.355829426739" />
+    <Dynamo.Graph.Notes.NoteModel guid="6d39ff42-09a1-4f67-8a22-a17523f92b88" text="FOLLOW US&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Follow us to get the latest digital engineering news &amp; be the first to hear about bimorphNodes updates:&#xD;&#xA;&#xD;&#xA;FACEBOOK:  facebook.com/bimorphBIM&#xD;&#xA;LINKEDIN:  linkedin.com/company/bimorph-bim&#xD;&#xA;TWITTER:  @bimorphBIM" x="-824.98025777189" y="536.933457628294" />
+    <Dynamo.Graph.Notes.NoteModel guid="d7104f3c-291c-4fe8-acc8-d43db26d1cf9" text="USER GUIDE + DOWNLOADS&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;For bimorphNodes user guides and downloadable example graphs, visit:&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk/bimorph-nodes" x="-826.439492565634" y="405.384493639057" />
+  </Notes>
+  <Annotations>
+    <Dynamo.Graph.Annotations.AnnotationModel guid="bbbd0223-2ef5-4b16-9974-08aa19d8cf1a" annotationText="NODE DETAILS" left="-837.357657408722" top="18.3340771794131" width="323.358138923343" height="813.021752247326" fontSize="36" InitialTop="71.3340771794131" InitialHeight="769.021752247326" TextblockHeight="43" backgrouund="#FFD8D8D8">
+      <Models ModelGuid="ac42f7e4-f0c2-43c6-8990-2ef5566aafac" />
+      <Models ModelGuid="7c7650a6-2a64-4a0f-bcad-fe55250fc088" />
+      <Models ModelGuid="574a726e-1a7b-4e9f-afc6-8906b5a322ff" />
+      <Models ModelGuid="df60eb6a-9bf5-4528-bb55-7ee362e8350c" />
+      <Models ModelGuid="6d39ff42-09a1-4f67-8a22-a17523f92b88" />
+      <Models ModelGuid="d7104f3c-291c-4fe8-acc8-d43db26d1cf9" />
+    </Dynamo.Graph.Annotations.AnnotationModel>
+  </Annotations>
+  <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

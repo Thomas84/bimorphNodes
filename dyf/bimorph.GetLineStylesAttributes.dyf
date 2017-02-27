@@ -1,0 +1,93 @@
+<Workspace Version="1.0.0.1180" X="-14.4622598396399" Y="-233.88527634054" zoom="1.07976714707667" Name="bimorph.GetLineStylesAttributes" Description="Gets all the Revit Line Styles in the document and reports their Line Style Name, Weight and Colour as strings and integers. The Revit GraphicsStyle (Category) element for each Line Style is also output." ID="a7e50f8c-8fb6-47b0-b0e5-b0dbaabfc39a" Category="BimorphNodes.Revit.LineStyles.Query">
+  <NamespaceResolutionMap />
+  <Elements>
+    <Dynamo.Graph.Nodes.CodeBlockNodeModel guid="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" type="Dynamo.Graph.Nodes.CodeBlockNodeModel" nickname="Code Block" x="1549.70908149758" y="779.950332189084" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" CodeText="lineStyleNames = lineStyles[0];&#xA;lineStyleWeights = lineStyles[1];&#xA;lineStyleColour = lineStyles[2];&#xA;revitLineStyles = lineStyles[3];" ShouldFocus="false" />
+    <PythonNodeModels.PythonNode guid="4417d511-fdaf-4b18-8cb0-55aa6352a904" type="PythonNodeModels.PythonNode" nickname="Python Script" x="1247.62429777673" y="774.035013294654" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false" inputcount="0">
+      <Script>#Copyright 2017. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
+#Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes
+#GitHub: https://github.com/ThomasMahon/bimorphNodes/
+#Follow: facebook.com/bimorphBIM | linkedin.com/company/bimorph-bim | @bimorphBIM
+
+import clr
+
+# Import DocumentManager and TransactionManager
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+
+# Import RevitAPI
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+
+doc = DocumentManager.Instance.CurrentDBDocument
+
+lineStyle = doc.Settings.Categories.get_Item( BuiltInCategory.OST_Lines )
+lineStyleSubTypes = lineStyle.SubCategories
+
+listNames = []
+listRGB = []
+lineWeight = []
+graphicStyles = []
+for i in lineStyleSubTypes:
+	rgb = [i.LineColor.Red, i.LineColor.Green, i.LineColor.Blue]
+	weight = i.GetLineWeight(GraphicsStyleType.Projection)
+	
+	listNames.append(i.Name)
+	listRGB.append(rgb)
+	lineWeight.append(weight)
+	graphicStyles.Add( i.GetGraphicsStyle(GraphicsStyleType.Projection) )
+
+
+syncSort = sorted( zip(listNames, lineWeight, listRGB, graphicStyles), key=lambda name: name[0] )
+
+OUT = syncSort</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="e98dbfed-9fc4-4987-bfe5-6b47eb723a6d" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1942.94557458441" y="782.555054269693" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="lineStylesName" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="13f75866-f721-4f63-9003-aa08ad282a95" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1966.05082233342" y="845.144263325191" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="lineStylesWeight" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="6e708b29-986f-4bc6-b5bb-36d28ee0bbc2" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1948.92479499889" y="922.054269167689" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="lineStylesColour" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="9770fe26-3a2b-482c-bd18-88746ae7ea88" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="701.900297474979" y="770.097766430646" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//To refresh, input a bool and switch its current state&#xD;&#xA;refresh:bool=true" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="b2baa105-6441-45a2-bfd8-aa258f9dc4e2" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1952.09697504855" y="988.338988933856" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="GraphicStyle" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+    <Dynamo.Graph.Nodes.ZeroTouch.DSFunction guid="aa48a66e-d991-4a26-84e5-f96ba46572ea" type="Dynamo.Graph.Nodes.ZeroTouch.DSFunction" nickname="List.Transpose" x="1355.02728767056" y="776.217045334793" isVisible="true" isUpstreamVisible="true" lacing="Shortest" isSelectedInput="False" IsFrozen="false" isPinned="false" assembly="DSCoreNodes.dll" function="DSCore.List.Transpose@var[]..[]" />
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" start_index="0" end="e98dbfed-9fc4-4987-bfe5-6b47eb723a6d" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" start_index="1" end="13f75866-f721-4f63-9003-aa08ad282a95" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" start_index="2" end="6e708b29-986f-4bc6-b5bb-36d28ee0bbc2" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" start_index="3" end="b2baa105-6441-45a2-bfd8-aa258f9dc4e2" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="4417d511-fdaf-4b18-8cb0-55aa6352a904" start_index="0" end="aa48a66e-d991-4a26-84e5-f96ba46572ea" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="aa48a66e-d991-4a26-84e5-f96ba46572ea" start_index="0" end="cf8fbba8-bd80-4190-a535-51b1b6ac8db0" end_index="0" portType="0" />
+  </Connectors>
+  <Notes>
+    <Dynamo.Graph.Notes.NoteModel guid="e99eea59-362a-4d31-97f3-32ba26580790" text="AUTHOR + COPYRIGHT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Copyright 2017 Bimorph Consultancy &#xD;&#xA;Thomas Mahon&#xD;&#xA;@Thomas__Mahon" x="298.177573762139" y="482.693779123764" />
+    <Dynamo.Graph.Notes.NoteModel guid="839872b1-ddc7-4497-8b21-501a1f8b9495" text="CONTACT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk&#xD;&#xA;&#xD;&#xA;info@bimorph.co.uk&#xD;&#xA;@bimorphBIM" x="297.551438145744" y="598.506071392222" />
+    <Dynamo.Graph.Notes.NoteModel guid="57b4b859-4343-41e2-b19a-dcad6c5353a0" text="PACKAGE NAME&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;bimorphNodes" x="297.523424721081" y="397.916292405817" />
+    <Dynamo.Graph.Notes.NoteModel guid="8526e229-a8c1-40ce-86d3-0c64e44398ad" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;To report bugs or suggest improvements or new features, visit:&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="301.881563644424" y="1026.93804465314" />
+    <Dynamo.Graph.Notes.NoteModel guid="a5d09fab-5d5d-4593-bcc4-dfc88e38fd15" text="FOLLOW US&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Follow us to get the latest digital engineering news &amp; be the first to hear about bimorphNodes updates:&#xD;&#xA;&#xD;&#xA;FACEBOOK:  facebook.com/bimorphBIM&#xD;&#xA;LINKEDIN:  linkedin.com/company/bimorph-bim&#xD;&#xA;TWITTER:  @bimorphBIM" x="299.900824357913" y="863.515672854698" />
+    <Dynamo.Graph.Notes.NoteModel guid="31071118-a7c5-4262-ad8e-0992e1ddb6de" text="USER GUIDE + DOWNLOADS&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;For bimorphNodes user guides and downloadable example graphs, visit:&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk/bimorph-nodes" x="298.441589564169" y="731.966708865461" />
+  </Notes>
+  <Annotations>
+    <Dynamo.Graph.Annotations.AnnotationModel guid="a7526cde-bb2e-41f5-9b13-71c05522fd51" annotationText="NODE DETAILS" left="287.523424721081" top="344.916292405817" width="323.358138923343" height="813.021752247323" fontSize="36" InitialTop="397.916292405817" InitialHeight="769.021752247326" TextblockHeight="43" backgrouund="#FFD8D8D8">
+      <Models ModelGuid="e99eea59-362a-4d31-97f3-32ba26580790" />
+      <Models ModelGuid="839872b1-ddc7-4497-8b21-501a1f8b9495" />
+      <Models ModelGuid="57b4b859-4343-41e2-b19a-dcad6c5353a0" />
+      <Models ModelGuid="8526e229-a8c1-40ce-86d3-0c64e44398ad" />
+      <Models ModelGuid="a5d09fab-5d5d-4593-bcc4-dfc88e38fd15" />
+      <Models ModelGuid="31071118-a7c5-4262-ad8e-0992e1ddb6de" />
+    </Dynamo.Graph.Annotations.AnnotationModel>
+  </Annotations>
+  <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>

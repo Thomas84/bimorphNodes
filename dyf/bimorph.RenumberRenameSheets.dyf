@@ -1,0 +1,157 @@
+<Workspace Version="1.0.0.1180" X="313.115068882602" Y="117.941408740531" zoom="0.840154587422283" Name="bimorph.RenumberRenameSheets" Description="Renumber and/or rename Revit sheets. To renumber or rename only, leave the other input empty. Sheets and newNumbers list's must be equal in length to run.&#xD;&#xA;&#xD;&#xA;The node uses an algorithm that handles common Revit sheet renumber warnings for more consistent results." ID="423368c0-fef5-4d78-a5f3-e52a1a46caf3" Category="BimorphNodes.Revit.Sheets.Actions">
+  <NamespaceResolutionMap>
+    <ClassMap partialName="Sheet" resolvedName="Revit.Elements.Views.Sheet" assemblyName="RevitNodes.dll" />
+  </NamespaceResolutionMap>
+  <Elements>
+    <PythonNodeModels.PythonNode guid="d82ddb2e-d5f4-4ea4-937c-a34ad1c25249" type="PythonNodeModels.PythonNode" nickname="Python Script" x="1271.46071037862" y="334.054321286758" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="true" inputcount="4">
+      <Script>#Copyright 2017. All rights reserved. Bimorph Consultancy LTD, 5 St Johns Lane, London EC1M 4BH www.bimorph.co.uk
+#Written by Thomas Mahon @Thomas__Mahon info@bimorph.co.uk Package: bimorphNodes
+#GitHub: https://github.com/ThomasMahon/bimorphNodes/
+#Follow: facebook.com/bimorphBIM | linkedin.com/company/bimorph-bim | @bimorphBIM
+
+import clr
+clr.AddReference("RevitAPIUI")
+from Autodesk.Revit.UI import TextBox
+from Autodesk.Revit.UI import TaskDialog
+from Autodesk.Revit.UI import TaskDialogCommonButtons
+
+# Import DocumentManager and TransactionManager
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+from System.Collections.Generic import *
+
+# Import RevitAPI
+clr.AddReference("RevitAPI")
+import Autodesk
+from Autodesk.Revit.DB import *
+
+doc = DocumentManager.Instance.CurrentDBDocument
+
+def convertToList(testList):
+	if isinstance(testList, list):
+		return testList
+	else:
+		return [testList]
+		
+def checkInputNamesForDuplicates(newNamesList):
+	if len(newNamesList) != len( set(newNamesList) ):
+		TaskDialog.Show("bimorph.RenumberOrRenameSheets", "bimorph.RenumberOrRenameSheets process terminated:\nThe list of newNumbers contains duplicates. Check your newNumbers list and ensure each name is unique", TaskDialogCommonButtons.Ok)
+		return True
+		
+def sheetNumbers(sheetList):
+	docSheetNumbers = []
+	for s in sheetList:
+		docSheetNumbers.Add( s.SheetNumber )
+	return docSheetNumbers
+		
+def renameSheet(sheets, data, param):
+	for s, n in zip(sheets, data):
+		numberParam = s.get_Parameter( param )
+		numberParam.Set(n)
+	
+run = IN[3]
+
+collector = FilteredElementCollector(doc).OfClass( ViewSheet ).OfCategory( BuiltInCategory.OST_Sheets )
+elementlist = collector.ToElements()
+
+docSheetNumbers = sheetNumbers(elementlist)
+
+lacingErrorMessage = "bimorph.RenumberOrRenameSheets:\nLacing Error - The sheets and newNumbers lists are not equal in length. Ensure both lists contain an equal number of items and try again"
+dialogBoxName = "bimorph.RenumberOrRenameSheets"
+outLacingError = "Rename terminated. Lacing mismatch - ensure an equal number of items are in the sheets and newNumbers lists"
+renamedMessage = ""
+
+if run:
+	TransactionManager.Instance.EnsureInTransaction(doc)
+	
+	sheets = UnwrapElement( convertToList(IN[0]) )
+	newNumbers = convertToList( IN[1] )
+	newNames =  convertToList( IN[2] )
+	
+	renumberSheets = len(newNumbers) &gt; 0
+	renameSheets = len(newNames) &gt; 0
+	
+	inputSheetNumbers = sheetNumbers(sheets)
+	checkForDuplicates = checkInputNamesForDuplicates(newNumbers)
+	if checkForDuplicates:
+		OUT = "Renumber terminated - list of new sheet names contains duplicates. Provide unique names and try again"
+	else:
+		if renumberSheets:
+			if len(sheets) == len(newNumbers):
+				duplicateName = []
+				for i in newNumbers:
+					if i in docSheetNumbers and i not in inputSheetNumbers: 
+						duplicateName.Add( i )
+				if len(duplicateName) &gt; 0: 
+					TransactionManager.Instance.TransactionTaskDone()
+					
+					TaskDialog.Show(dialogBoxName, "bimorph.RenumberOrRenameSheets process terminated:\nThe following sheet numbers already exist and cannot be used to re-number the sheets. Provide a list of unique names and try again:\n" + str(duplicateName), TaskDialogCommonButtons.Ok)
+					OUT = "Rename terminated - new sheet names conflict with existing sheets in the document: " + str(duplicateName) + ". Provide unique names and try again" 
+				else:
+					renameSheet(sheets, [s.Id for s in sheets], BuiltInParameter.SHEET_NUMBER) 
+					renameSheet(sheets, newNumbers, BuiltInParameter.SHEET_NUMBER) 
+					
+					if renameSheets:
+						renameSheet(sheets, newNames, BuiltInParameter.SHEET_NAME)
+						renamedMessage = " and renamed"
+					
+					TransactionManager.Instance.TransactionTaskDone()
+					OUT = "Sheets successfully renumbered" + renamedMessage
+			else:
+				TransactionManager.Instance.TransactionTaskDone()
+				
+				TaskDialog.Show(dialogBoxName, lacingErrorMessage, TaskDialogCommonButtons.Ok)
+				OUT = outLacingError
+		else:
+			renameSheet(sheets, newNames, BuiltInParameter.SHEET_NAME)
+			TransactionManager.Instance.TransactionTaskDone()
+			OUT = "Sheets successfully renamed"</Script>
+    </PythonNodeModels.PythonNode>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="2b7d64c8-588b-481c-9d97-197443a69988" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="757.982148976975" y="274.341242211406" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Enter the Revit sheets to renumber or rename&#xD;&#xA;sheets:Sheet[]" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="2da48391-38ee-4631-919f-03cf635fcc38" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="469.382051808895" y="346.746595705687" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Enter a list of sheet numbers to renumber the sheets. Leave empty to rename only&#xD;&#xA;newNumbers:string[]={}" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="1410bbca-e07d-45ad-998c-6ff1ede10e3f" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="476.735720305219" y="436.858141839907" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Enter a list of sheet names to rename the sheets. Leave empty to renumber only&#xD;&#xA;newNames:string[]={}" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Symbol guid="3b9ccb55-2953-4a10-93bf-31c478d12d98" type="Dynamo.Graph.Nodes.CustomNodes.Symbol" nickname="Input" x="676.327904113919" y="512.801778586039" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="True" IsFrozen="false" isPinned="false">
+      <Symbol value="//Set to True to renumber and/or rename the input sheets&#xD;&#xA;run:bool" />
+    </Dynamo.Graph.Nodes.CustomNodes.Symbol>
+    <Dynamo.Graph.Nodes.CustomNodes.Output guid="551a9cc3-d996-4a77-8e4b-fb008485d436" type="Dynamo.Graph.Nodes.CustomNodes.Output" nickname="Output" x="1434.30748387846" y="360.299781366454" isVisible="true" isUpstreamVisible="true" lacing="Disabled" isSelectedInput="False" IsFrozen="false" isPinned="false">
+      <Symbol value="report" />
+    </Dynamo.Graph.Nodes.CustomNodes.Output>
+  </Elements>
+  <Connectors>
+    <Dynamo.Graph.Connectors.ConnectorModel start="d82ddb2e-d5f4-4ea4-937c-a34ad1c25249" start_index="0" end="551a9cc3-d996-4a77-8e4b-fb008485d436" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="2b7d64c8-588b-481c-9d97-197443a69988" start_index="0" end="d82ddb2e-d5f4-4ea4-937c-a34ad1c25249" end_index="0" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="2da48391-38ee-4631-919f-03cf635fcc38" start_index="0" end="d82ddb2e-d5f4-4ea4-937c-a34ad1c25249" end_index="1" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="1410bbca-e07d-45ad-998c-6ff1ede10e3f" start_index="0" end="d82ddb2e-d5f4-4ea4-937c-a34ad1c25249" end_index="2" portType="0" />
+    <Dynamo.Graph.Connectors.ConnectorModel start="3b9ccb55-2953-4a10-93bf-31c478d12d98" start_index="0" end="d82ddb2e-d5f4-4ea4-937c-a34ad1c25249" end_index="3" portType="0" />
+  </Connectors>
+  <Notes>
+    <Dynamo.Graph.Notes.NoteModel guid="fb043986-2490-456f-b3f0-482e67149274" text="AUTHOR + COPYRIGHT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Copyright 2017 Bimorph Consultancy &#xD;&#xA;Thomas Mahon&#xD;&#xA;@Thomas__Mahon" x="61.4950233011739" y="267.302793572146" />
+    <Dynamo.Graph.Notes.NoteModel guid="b7eaa3d7-8565-4120-b853-e21a5e1de689" text="CONTACT&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk&#xD;&#xA;&#xD;&#xA;info@bimorph.co.uk&#xD;&#xA;@bimorphBIM" x="60.8688876847789" y="383.115085840604" />
+    <Dynamo.Graph.Notes.NoteModel guid="d97f7614-d317-4ad3-ab97-f344a51c7faf" text="PACKAGE NAME&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;bimorphNodes" x="60.8408742601158" y="182.525306854199" />
+    <Dynamo.Graph.Notes.NoteModel guid="12eb349a-af72-4d8f-a91e-53b4ebc1cd01" text="GITHUB&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;To report bugs or suggest improvements or new features, visit:&#xD;&#xA;&#xD;&#xA;https://github.com/ThomasMahon/bimorphNodes/" x="65.1990131834592" y="811.547059101525" />
+    <Dynamo.Graph.Notes.NoteModel guid="36450367-e908-454b-b275-1f2ecf0b4ebf" text="FOLLOW US&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;Follow us to get the latest digital engineering news &amp; be the first to hear about bimorphNodes updates:&#xD;&#xA;&#xD;&#xA;FACEBOOK:  facebook.com/bimorphBIM&#xD;&#xA;LINKEDIN:  linkedin.com/company/bimorph-bim&#xD;&#xA;TWITTER:  @bimorphBIM" x="63.2182738969479" y="648.12468730308" />
+    <Dynamo.Graph.Notes.NoteModel guid="29963221-7c30-40ac-b87a-34f396a6f73c" text="USER GUIDE + DOWNLOADS&#xD;&#xA;________________________________________________________&#xD;&#xA;&#xD;&#xA;For bimorphNodes user guides and downloadable example graphs, visit:&#xD;&#xA;&#xD;&#xA;www.bimorph.co.uk/bimorph-nodes" x="61.7590391032038" y="516.575723313842" />
+  </Notes>
+  <Annotations>
+    <Dynamo.Graph.Annotations.AnnotationModel guid="9b867db6-0bbc-49d2-b9d8-51fab27e68d7" annotationText="NODE DETAILS" left="50.8408742601158" top="129.525306854199" width="323.358138923343" height="813.021752247326" fontSize="36" InitialTop="182.525306854199" InitialHeight="769.021752247326" TextblockHeight="43" backgrouund="#FFD8D8D8">
+      <Models ModelGuid="fb043986-2490-456f-b3f0-482e67149274" />
+      <Models ModelGuid="b7eaa3d7-8565-4120-b853-e21a5e1de689" />
+      <Models ModelGuid="d97f7614-d317-4ad3-ab97-f344a51c7faf" />
+      <Models ModelGuid="12eb349a-af72-4d8f-a91e-53b4ebc1cd01" />
+      <Models ModelGuid="36450367-e908-454b-b275-1f2ecf0b4ebf" />
+      <Models ModelGuid="29963221-7c30-40ac-b87a-34f396a6f73c" />
+    </Dynamo.Graph.Annotations.AnnotationModel>
+  </Annotations>
+  <Presets />
+  <Cameras>
+    <Camera Name="Background Preview" eyeX="-17" eyeY="24" eyeZ="50" lookX="12" lookY="-13" lookZ="-58" upX="0" upY="1" upZ="0" />
+  </Cameras>
+</Workspace>
