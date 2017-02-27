@@ -1,13 +1,19 @@
 # bimorphNodes
-BimorphNodes is a collection of powerful utility nodes for Dynamo and Revit designed for ease of use
+BimorphNodes are a collection of powerful utility nodes that extend the functionality of Dynamo for Revit.
 
-# Version 1.0 
+# Version 2.0 
 Whats included:
 
 ### DWG | DGN
 1. CurvesFromCADLayers 
-2. CADLayerNames
-3. CADLayersInUse
+2. DetailLinesFromCADLayers 
+3. CADLayerNames
+4. CADLayersInUse
+5. SetCADObjectStyles
+6. ReportCADLinks
+
+### Curve
+1. RemoveDuplicateCurves
 
 ### Revit.LineStyles:
 1. CreateNewLineStyles
